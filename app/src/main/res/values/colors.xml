@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- App Dark Theme Colors -->
+    <color name="bg_dark_start">#1A1A2E</color>
+    <color name="bg_dark_end">#16213E</color>
+    <color name="bg_card">#1E2A45</color>
+    <color name="bg_card_light">#253350</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_teal">#4ECDC4</color>
+    <color name="accent_mint">#5CFFC4</color>
+    <color name="accent_orange">#F4A83D</color>
+    <color name="accent_orange_dark">#E8912A</color>
+    <color name="accent_green">#4CAF50</color>
+    <color name="accent_green_light">#6FD875</color>
+    <color name="accent_red">#E74C3C</color>
+    <color name="accent_red_light">#FF6B6B</color>
+    <color name="accent_gold">#FFD700</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0BEC5</color>
+    <color name="text_hint">#78909C</color>
+    <color name="text_accent">#4ECDC4</color>
+
+    <!-- Heart Colors -->
+    <color name="heart_active">#FF4D6D</color>
+    <color name="heart_inactive">#3A3A5C</color>
+
+    <!-- Progress Bar -->
+    <color name="progress_green">#4CAF50</color>
+    <color name="progress_red">#E74C3C</color>
+    <color name="progress_bg">#2A2A4A</color>
+
+    <!-- Mystery Box -->
+    <color name="box_border">#4ECDC4</color>
+    <color name="box_bg">#1E2A45</color>
+    <color name="box_question">#78909C</color>
+
+    <!-- Dialog -->
+    <color name="dialog_bg_start">#E74C3C</color>
+    <color name="dialog_bg_end">#C0392B</color>
+
+    <!-- Premium -->
+    <color name="premium_gradient_start">#F4A83D</color>
+    <color name="premium_gradient_end">#E8912A</color>
+
+    <!-- Settings -->
+    <color name="settings_item_bg">#1E2A45</color>
+    <color name="settings_divider">#2A3A55</color>
+
+    <!-- Ad Banner -->
+    <color name="ad_bg">#ECEFF1</color>
+    <color name="ad_text">#546E7A</color>
+    <color name="ad_badge_bg">#F4A83D</color>
+</resources>

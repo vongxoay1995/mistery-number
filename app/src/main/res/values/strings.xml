@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Số Bí Ẩn</string>
+    <string name="app_subtitle">Mystery Numbers</string>
+
+    <!-- Splash -->
+    <string name="loading">Đang tải…</string>
+
+    <!-- Main Menu -->
+    <string name="tap_to_play">Chạm để chơi</string>
+
+    <!-- Gameplay -->
+    <string name="level_label">Cấp độ</string>
+    <string name="level_format">%1$d / %2$d</string>
+    <string name="score_format">🏆 %d</string>
+    <string name="timer_format">%ds</string>
+    <string name="instruction">Chạm vào mỗi ô và đoán dãy số bí mật (%d chữ số)</string>
+    <string name="hint_bottom">Mỗi ô nhận một số từ 0–9. Đoán đúng cả dãy để qua màn!</string>
+
+    <!-- Game Over Dialog -->
+    <string name="time_up">Hết thời gian!</string>
+    <string name="game_over_message">Bạn đã thất bại ở cấp độ %d. Thêm thời gian để tiếp tục?</string>
+    <string name="watch_ad_option">▶  +15s · Xem quảng cáo</string>
+    <string name="buy_premium_option">👑  +30s · Mua Premium</string>
+    <string name="ok_go_home">OK · Về màn hình chính</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="unlock_premium">Mở khoá Premium</string>
+    <string name="premium_desc">Bỏ quảng cáo · thêm thời gian · nhiều gợi ý</string>
+    <string name="sound">Âm thanh</string>
+    <string name="sound_desc">Bật tiếng trong trò chơi</string>
+    <string name="rate_app">Đánh giá ứng dụng</string>
+    <string name="rate_app_desc">Cho chúng tôi 5 sao trên CH Play</string>
+    <string name="privacy_policy">Chính sách bảo mật</string>
+    <string name="privacy_policy_sub">Privacy Policy</string>
+    <string name="version_format">Phiên bản %s</string>
+
+    <!-- Premium Screen -->
+    <string name="premium_title">Premium</string>
+    <string name="premium_heading">Mở khoá toàn bộ</string>
+    <string name="premium_subtitle">Trải nghiệm trọn vẹn không quảng cáo</string>
+    <string name="premium_feature_1">Tắt toàn bộ quảng cáo</string>
+    <string name="premium_feature_2">Mở khoá thêm thời gian không giới hạn</string>
+    <string name="premium_feature_3">Nhiều gợi ý hơn mỗi level</string>
+    <string name="premium_feature_4">Biểu tượng và chủ đề độc quyền</string>
+    <string name="premium_feature_5">Hỗ trợ nhà phát triển</string>
+    <string name="buy_now">Mua ngay · 49.000đ</string>
+    <string name="buy_once">Mua một lần · sử dụng vĩnh viễn</string>
+
+    <!-- Policy Screen -->
+    <string name="policy_title">Chính sách bảo mật</string>
+    <string name="policy_intro">Chúng tôi tôn trọng quyền riêng tư của bạn. Ứng dụng \"Số Bí Ẩn\" thu thập tối thiểu dữ liệu cần thiết để cung cấp trải nghiệm chơi tốt nhất.</string>
+    <string name="policy_section1_title">1. Dữ liệu thu thập</string>
+    <string name="policy_section1_body">Chúng tôi không thu thập thông tin cá nhân nhận dạng. Dữ liệu điểm số được lưu cục bộ trên thiết bị của bạn.</string>
+    <string name="policy_section2_title">2. Quảng cáo</string>
+    <string name="policy_section2_body">Ứng dụng có hiển thị quảng cáo từ bên thứ ba. Bạn có thể nâng cấp Premium để tắt toàn bộ quảng cáo.</string>
+    <string name="policy_section3_title">3. Liên hệ</string>
+    <string name="policy_section3_body">Mọi câu hỏi vui lòng gửi về:\nsupport@mysterynumbers.app</string>
+    <string name="policy_updated">Cập nhật lần cuối: 31/05/2026</string>
+
+    <!-- Ad Banner -->
+    <string name="ad_placeholder">Quảng cáo của bạn ở đây</string>
+    <string name="ad_size">Banner 320×50 · demo</string>
+
+    <!-- Win -->
+    <string name="win_message">Chúc mừng! Bạn đã đoán đúng!</string>
+    <string name="next_level">Màn tiếp theo</string>
+</resources>
