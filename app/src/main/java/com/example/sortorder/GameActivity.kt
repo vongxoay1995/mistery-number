@@ -1,101 +1,159 @@
 package com.example.sortorder
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.graphics.Path
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.ScaleAnimation
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import kotlin.math.hypot
 
 class GameActivity : AppCompatActivity() {
 
+    private lateinit var gameRoot: FrameLayout
     private lateinit var tvLevel: TextView
-    private lateinit var tvHearts: TextView
     private lateinit var tvScore: TextView
+    private lateinit var tvBestScore: TextView
     private lateinit var tvTimer: TextView
-    private lateinit var tvInstruction: TextView
+    private lateinit var tvFeedback: TextView
+    private lateinit var tvCombo: TextView
+    private lateinit var tvRule: TextView
+    private lateinit var btnHint: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var boxContainer: LinearLayout
-    private lateinit var numberPadContainer: LinearLayout
+    private lateinit var boxContainer: FlowLayout
     private lateinit var gameOverOverlay: FrameLayout
     private lateinit var winOverlay: FrameLayout
+    private lateinit var adEntitlement: AdEntitlement
 
     private var currentLevel = 1
     private val maxLevel = 9
-    private var lives = 3
     private var score = 0
-    private var timeLeft = 25
-    private var maxTime = 25
+    private var bestScore = 0
+    private var timeLeft = 35
+    private var timerDuration = 35
+    private var selectedBoxIndex: Int? = null
+    private var isLevelFinished = false
+    private var checksUsed = 0
+    private var hintsRemaining = 1
+    private var hintsUsed = 0
+    private var combo = 0
+    private var soundEnabled = true
+    private var isSwapping = false
+    private var soundPool: SoundPool? = null
+    private var correctSoundId = 0
+    private var wrongSoundId = 0
 
-    private var secretNumbers: List<Int> = emptyList()
-    private var userGuesses: MutableList<Int?> = mutableListOf()
-    private var selectedBoxIndex = -1
+    private var targetNumbers: List<Int> = emptyList()
+    private var currentNumbers: MutableList<Int> = mutableListOf()
     private var timer: CountDownTimer? = null
-
     private val boxViews = mutableListOf<FrameLayout>()
+    private val revealedHintIndices = mutableSetOf<Int>()
+    private lateinit var coinWallet: CoinWallet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_game)
+        FullScreenHelper.apply(this)
 
         initViews()
+        coinWallet = CoinWallet(this)
+        adEntitlement = AdEntitlement(this)
+        loadBestScore()
+        initSounds()
         setupListeners()
         startLevel()
     }
 
     private fun initViews() {
+        gameRoot = findViewById(R.id.gameRoot)
         tvLevel = findViewById(R.id.tvLevel)
-        tvHearts = findViewById(R.id.tvHearts)
         tvScore = findViewById(R.id.tvScore)
+        tvBestScore = findViewById(R.id.tvBestScore)
         tvTimer = findViewById(R.id.tvTimer)
-        tvInstruction = findViewById(R.id.tvInstruction)
+        tvFeedback = findViewById(R.id.tvFeedback)
+        tvCombo = findViewById(R.id.tvCombo)
+        tvRule = findViewById(R.id.tvRule)
+        btnHint = findViewById(R.id.btnHint)
         progressBar = findViewById(R.id.progressBar)
         boxContainer = findViewById(R.id.boxContainer)
-        numberPadContainer = findViewById(R.id.numberPadContainer)
+        boxContainer.clipChildren = false
+        boxContainer.clipToPadding = false
         gameOverOverlay = findViewById(R.id.gameOverOverlay)
         winOverlay = findViewById(R.id.winOverlay)
     }
 
+    private fun loadBestScore() {
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        bestScore = prefs.getInt(KEY_BEST_SCORE, 0)
+    }
+
+    private fun saveBestScore() {
+        if (score <= bestScore) return
+        bestScore = score
+        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(KEY_BEST_SCORE, bestScore)
+            .apply()
+    }
+
+    private fun initSounds() {
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(attributes)
+            .build()
+        correctSoundId = soundPool?.load(this, R.raw.right_answer, 1) ?: 0
+        wrongSoundId = soundPool?.load(this, R.raw.wrong_anwser, 1) ?: 0
+    }
+
     private fun setupListeners() {
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnCheck).setOnClickListener { checkOrder() }
+        btnHint.setOnClickListener { useHint() }
 
         findViewById<View>(R.id.btnWatchAd).setOnClickListener {
-            // Simulate watching ad: add 15s
-            gameOverOverlay.visibility = View.GONE
-            timeLeft += 15
-            maxTime = timeLeft
-            startTimer()
+            continueWithExtraTime(REWARDED_AD_SECONDS)
         }
 
-        findViewById<View>(R.id.btnBuyPremium).setOnClickListener {
-            // Simulate premium: add 30s
-            gameOverOverlay.visibility = View.GONE
-            timeLeft += 30
-            maxTime = timeLeft
-            startTimer()
+        findViewById<View>(R.id.btnUseCoins).setOnClickListener {
+            if (coinWallet.spend(CoinWallet.EXTRA_TIME_COST)) {
+                continueWithExtraTime(COIN_EXTRA_TIME_SECONDS)
+            } else {
+                startActivity(Intent(this, PremiumActivity::class.java))
+            }
         }
 
-        findViewById<View>(R.id.btnGoHome).setOnClickListener {
-            finish()
-        }
+        findViewById<View>(R.id.btnGoHome).setOnClickListener { finish() }
 
         findViewById<View>(R.id.btnNextLevel).setOnClickListener {
             winOverlay.visibility = View.GONE
             currentLevel++
             if (currentLevel > maxLevel) {
-                Toast.makeText(this, "Bạn đã hoàn thành tất cả!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.all_levels_completed, Toast.LENGTH_LONG).show()
                 finish()
             } else {
                 startLevel()
@@ -103,281 +161,433 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun getNumDigits(): Int {
-        // Levels 1-3: 3 digits, 4-6: 4 digits, 7-9: 5 digits
-        return when {
-            currentLevel <= 3 -> 3
-            currentLevel <= 6 -> 4
-            else -> 5
-        }
-    }
+    private fun getNumDigits(): Int = (currentLevel + 2).coerceAtMost(7)
 
     private fun getTimeForLevel(): Int {
-        return when {
-            currentLevel <= 3 -> 25
-            currentLevel <= 6 -> 30
-            else -> 35
-        }
+        val baseTime = 40 + (getNumDigits() - 3) * 10
+        return baseTime + if (usesAdjacentSwapRule()) 15 else 0
     }
 
+    private fun usesAdjacentSwapRule(): Boolean = currentLevel >= 7
+
     private fun startLevel() {
-        val numDigits = getNumDigits()
-        timeLeft = getTimeForLevel()
-        maxTime = timeLeft
+        timerDuration = getTimeForLevel()
+        timeLeft = timerDuration
+        selectedBoxIndex = null
+        isLevelFinished = false
+        checksUsed = 0
+        hintsUsed = 0
+        hintsRemaining = combo
+        revealedHintIndices.clear()
 
-        // Generate secret numbers
-        val available = (0..9).toMutableList()
-        available.shuffle()
-        secretNumbers = available.subList(0, numDigits)
-        userGuesses = MutableList(numDigits) { null }
-        selectedBoxIndex = 0
+        targetNumbers = (0..9).shuffled().take(getNumDigits())
+        currentNumbers = targetNumbers.shuffled().toMutableList()
+        while (currentNumbers == targetNumbers) {
+            currentNumbers.shuffle()
+        }
 
-        updateUI()
-        createBoxes(numDigits)
-        createNumberPad()
+        tvLevel.text = getString(R.string.level_format, currentLevel)
+        tvScore.text = score.toString()
+        tvBestScore.text = bestScore.toString()
+        tvFeedback.text = ""
+        updateCombo()
+        updateHintButton()
+        tvRule.text = if (usesAdjacentSwapRule()) {
+            getString(R.string.rule_adjacent)
+        } else {
+            ""
+        }
+        progressBar.max = timerDuration
+        progressBar.progress = timeLeft
+        createBoxes()
+        updateTimerDisplay()
         startTimer()
     }
 
-    private fun updateUI() {
-        tvLevel.text = getString(R.string.level_format, currentLevel, maxLevel)
-        tvScore.text = "🏆 $score"
-        tvInstruction.text = getString(R.string.instruction, getNumDigits())
-        updateHearts()
-        updateTimerDisplay()
-    }
-
-    private fun updateHearts() {
-        val active = "❤️"
-        val inactive = "🖤"
-        val hearts = StringBuilder()
-        for (i in 0 until 3) {
-            hearts.append(if (i < lives) active else inactive)
-        }
-        tvHearts.text = hearts
-    }
-
-    private fun updateTimerDisplay() {
-        tvTimer.text = "⏱ ${timeLeft}s"
-        val progress = (timeLeft.toFloat() / maxTime * 100).toInt()
-        progressBar.progress = progress
-
-        if (timeLeft <= 10) {
-            tvTimer.setTextColor(Color.parseColor("#E74C3C"))
-            progressBar.progressDrawable = getDrawable(R.drawable.bg_progress_bar_red)
-        } else {
-            tvTimer.setTextColor(Color.WHITE)
-            progressBar.progressDrawable = getDrawable(R.drawable.bg_progress_bar)
-        }
-    }
-
-    private fun createBoxes(numDigits: Int) {
+    private fun createBoxes() {
         boxContainer.removeAllViews()
         boxViews.clear()
 
+        val numDigits = currentNumbers.size
         val boxSizeDp = when {
-            numDigits <= 3 -> 90
-            numDigits <= 4 -> 75
-            else -> 65
+            numDigits <= 4 -> 64
+            numDigits <= 6 -> 54
+            else -> 46
         }
-        val marginDp = 8
+        val marginDp = if (numDigits <= 5) 6 else 4
+        val textSizeSp = if (numDigits <= 5) 28f else 24f
         val density = resources.displayMetrics.density
         val boxSizePx = (boxSizeDp * density).toInt()
         val marginPx = (marginDp * density).toInt()
 
-        for (i in 0 until numDigits) {
+        currentNumbers.indices.forEach { index ->
             val box = FrameLayout(this).apply {
-                val lp = LinearLayout.LayoutParams(boxSizePx, boxSizePx).apply {
-                    setMargins(marginPx, 0, marginPx, 0)
+                layoutParams = ViewGroup.MarginLayoutParams(boxSizePx, boxSizePx).apply {
+                    setMargins(marginPx, marginPx, marginPx, marginPx)
                 }
-                layoutParams = lp
-                setBackgroundResource(if (i == 0) R.drawable.bg_mystery_box_selected else R.drawable.bg_mystery_box)
+                setBackgroundResource(R.drawable.bg_slot_filled)
+                isClickable = true
+                isFocusable = true
 
-                val tvQuestion = TextView(this@GameActivity).apply {
+                addView(TextView(this@GameActivity).apply {
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT
                     )
                     gravity = Gravity.CENTER
-                    text = "?"
-                    setTextColor(Color.parseColor("#78909C"))
-                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 32f)
+                    text = currentNumbers[index].toString()
+                    setTextColor(Color.WHITE)
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeSp)
                     typeface = Typeface.DEFAULT_BOLD
-                    tag = "questionText"
-                }
-                addView(tvQuestion)
+                    tag = NUMBER_TEXT_TAG
+                })
 
-                setOnClickListener { selectBox(i) }
+                setOnClickListener {
+                    if (!isLevelFinished && gameOverOverlay.visibility != View.VISIBLE) {
+                        selectOrSwap(index)
+                    }
+                }
             }
             boxViews.add(box)
             boxContainer.addView(box)
         }
     }
 
-    private fun selectBox(index: Int) {
-        selectedBoxIndex = index
-        // Update box visuals
-        for (i in boxViews.indices) {
-            val box = boxViews[i]
-            val guess = userGuesses[i]
-            if (i == index) {
-                box.setBackgroundResource(R.drawable.bg_mystery_box_selected)
-            } else if (guess != null) {
-                box.setBackgroundResource(R.drawable.bg_mystery_box_selected)
-            } else {
-                box.setBackgroundResource(R.drawable.bg_mystery_box)
-            }
+    private fun selectOrSwap(index: Int) {
+        if (isSwapping) return
+        val firstIndex = selectedBoxIndex
+        if (firstIndex == null) {
+            selectedBoxIndex = index
+            boxViews[index].setBackgroundResource(R.drawable.bg_mystery_box_selected)
+            return
         }
 
-        // Scale animation
-        val scaleAnim = ScaleAnimation(
-            1f, 1.1f, 1f, 1.1f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 150
-            repeatMode = ScaleAnimation.REVERSE
-            repeatCount = 1
+        if (firstIndex == index) {
+            clearSelection()
+            return
         }
-        boxViews[index].startAnimation(scaleAnim)
+
+        if (usesAdjacentSwapRule() && kotlin.math.abs(firstIndex - index) != 1) {
+            clearSelection()
+            playWrongSound()
+            tvFeedback.setTextColor(Color.parseColor("#FFB45C"))
+            tvFeedback.setText(R.string.adjacent_swap_only)
+            shakeView(boxContainer)
+            return
+        }
+
+        clearSelection()
+        tvFeedback.text = ""
+        performAnimatedSwap(firstIndex, index)
     }
 
-    private fun createNumberPad() {
-        numberPadContainer.removeAllViews()
-        val density = resources.displayMetrics.density
-        val buttonSizePx = (48 * density).toInt()
-        val marginPx = (6 * density).toInt()
+    private fun performAnimatedSwap(idx1: Int, idx2: Int) {
+        animateNumberSwap(idx1, idx2) {
+            val temp = currentNumbers[idx1]
+            currentNumbers[idx1] = currentNumbers[idx2]
+            currentNumbers[idx2] = temp
+        }
+    }
 
-        // Row 1: 0-4
-        val row1 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+    private fun animateNumberSwap(idx1: Int, idx2: Int, swapData: () -> Unit) {
+        isSwapping = true
+        val box1 = boxViews[idx1]
+        val box2 = boxViews[idx2]
+        val dx = (box2.left - box1.left).toFloat()
+        val dy = (box2.top - box1.top).toFloat()
+        val distance = hypot(dx, dy)
+        val arcHeight = (distance * 0.28f).coerceIn(dp(18f), dp(46f))
+        val direction = if (dx >= 0f) 1f else -1f
+
+        val travel = AnimatorSet().apply {
+            playTogether(
+                ObjectAnimator.ofFloat(
+                    box1,
+                    View.TRANSLATION_X,
+                    View.TRANSLATION_Y,
+                    createSwapPath(dx, dy, arcHeight)
+                ),
+                ObjectAnimator.ofFloat(
+                    box2,
+                    View.TRANSLATION_X,
+                    View.TRANSLATION_Y,
+                    createSwapPath(-dx, -dy, arcHeight)
+                ),
+                ObjectAnimator.ofFloat(box1, View.SCALE_X, 1f, 1.14f, 1.06f),
+                ObjectAnimator.ofFloat(box1, View.SCALE_Y, 1f, 1.14f, 1.06f),
+                ObjectAnimator.ofFloat(box2, View.SCALE_X, 1f, 1.14f, 1.06f),
+                ObjectAnimator.ofFloat(box2, View.SCALE_Y, 1f, 1.14f, 1.06f),
+                ObjectAnimator.ofFloat(box1, View.ROTATION, 0f, 8f * direction, 0f),
+                ObjectAnimator.ofFloat(box2, View.ROTATION, 0f, -8f * direction, 0f),
+                ObjectAnimator.ofFloat(box1, View.TRANSLATION_Z, 0f, dp(12f), 0f),
+                ObjectAnimator.ofFloat(box2, View.TRANSLATION_Z, 0f, dp(12f), 0f)
             )
-        }
-
-        // Row 2: 5-9
-        val row2 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = marginPx }
-        }
-
-        for (num in 0..9) {
-            val btn = TextView(this).apply {
-                val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
-                    setMargins(marginPx, 0, marginPx, 0)
-                }
-                layoutParams = lp
-                setBackgroundResource(R.drawable.bg_number_pad)
-                gravity = Gravity.CENTER
-                text = num.toString()
-                setTextColor(Color.WHITE)
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
-                typeface = Typeface.DEFAULT_BOLD
-
-                setOnClickListener { onNumberPressed(num) }
-            }
-
-            if (num < 5) row1.addView(btn) else row2.addView(btn)
-        }
-
-        numberPadContainer.addView(row1)
-        numberPadContainer.addView(row2)
-    }
-
-    private fun onNumberPressed(num: Int) {
-        if (selectedBoxIndex < 0 || selectedBoxIndex >= userGuesses.size) return
-
-        // Place number in selected box
-        userGuesses[selectedBoxIndex] = num
-
-        // Update box display
-        val box = boxViews[selectedBoxIndex]
-        val tvQuestion = box.findViewWithTag<TextView>("questionText")
-        tvQuestion.text = num.toString()
-        tvQuestion.setTextColor(Color.WHITE)
-        tvQuestion.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32f)
-
-        // Animate
-        val scaleAnim = ScaleAnimation(
-            0.8f, 1f, 0.8f, 1f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 200
+            duration = SWAP_TRAVEL_DURATION_MS
             interpolator = AccelerateDecelerateInterpolator()
         }
-        box.startAnimation(scaleAnim)
 
-        // Auto-advance to next empty box
-        val nextEmpty = userGuesses.indexOfFirst { it == null }
-        if (nextEmpty >= 0) {
-            selectBox(nextEmpty)
-        } else {
-            // All boxes filled - check answer
-            checkAnswer()
+        travel.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                swapData()
+                updateBoxNumber(idx1)
+                updateBoxNumber(idx2)
+                resetBoxBackground(idx1)
+                resetBoxBackground(idx2)
+                resetSwapTransform(box1)
+                resetSwapTransform(box2)
+
+                boxContainer.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                spawnSwapParticles(box1)
+                spawnSwapParticles(box2)
+                playSwapLanding(box1, box2)
+            }
+        })
+        travel.start()
+    }
+
+    private fun createSwapPath(dx: Float, dy: Float, arcHeight: Float): Path {
+        val distance = hypot(dx, dy).coerceAtLeast(1f)
+        val normalX = -dy / distance
+        val normalY = dx / distance
+        return Path().apply {
+            moveTo(0f, 0f)
+            quadTo(
+                dx * 0.5f + normalX * arcHeight,
+                dy * 0.5f + normalY * arcHeight,
+                dx,
+                dy
+            )
         }
     }
 
-    private fun checkAnswer() {
+    private fun resetSwapTransform(view: View) {
+        view.translationX = 0f
+        view.translationY = 0f
+        view.translationZ = 0f
+        view.rotation = 0f
+        view.scaleX = 1f
+        view.scaleY = 1f
+    }
+
+    private fun playSwapLanding(box1: View, box2: View) {
+        AnimatorSet().apply {
+            playTogether(
+                ObjectAnimator.ofFloat(box1, View.SCALE_X, 1f, 0.9f, 1.08f, 1f),
+                ObjectAnimator.ofFloat(box1, View.SCALE_Y, 1f, 0.86f, 1.1f, 1f),
+                ObjectAnimator.ofFloat(box2, View.SCALE_X, 1f, 0.9f, 1.08f, 1f),
+                ObjectAnimator.ofFloat(box2, View.SCALE_Y, 1f, 0.86f, 1.1f, 1f)
+            )
+            duration = SWAP_LANDING_DURATION_MS
+            interpolator = OvershootInterpolator(1.35f)
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    resetSwapTransform(box1)
+                    resetSwapTransform(box2)
+                    isSwapping = false
+                }
+            })
+            start()
+        }
+    }
+
+    private fun spawnSwapParticles(anchor: View) {
+        val rootLocation = IntArray(2)
+        val anchorLocation = IntArray(2)
+        gameRoot.getLocationInWindow(rootLocation)
+        anchor.getLocationInWindow(anchorLocation)
+        val cx = anchorLocation[0] - rootLocation[0] + anchor.width / 2f
+        val cy = anchorLocation[1] - rootLocation[1] + anchor.height / 2f
+        val size = dp(5f).toInt()
+        val colors = intArrayOf(
+            Color.parseColor("#22D3EE"),
+            Color.parseColor("#FDE047"),
+            Color.parseColor("#34D399"),
+            Color.parseColor("#A78BFA"),
+            Color.parseColor("#FB923C"),
+            Color.parseColor("#F472B6")
+        )
+        val particleCount = 6
+        for (i in 0 until particleCount) {
+            val dot = View(this).apply {
+                layoutParams = ViewGroup.LayoutParams(size, size)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(colors[i % colors.size])
+                }
+                x = cx - size / 2f
+                y = cy - size / 2f
+            }
+            gameRoot.addView(dot)
+            val angle = Math.toRadians((i * 360.0 / particleCount) + 30.0)
+            val dist = anchor.width * 0.9f
+            val tx = (Math.cos(angle) * dist).toFloat()
+            val ty = (Math.sin(angle) * dist).toFloat()
+            dot.animate()
+                .translationXBy(tx)
+                .translationYBy(ty)
+                .alpha(0f)
+                .scaleX(0.2f)
+                .scaleY(0.2f)
+                .setDuration(350)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .withEndAction { gameRoot.removeView(dot) }
+                .start()
+        }
+    }
+
+    private fun dp(value: Float): Float = value * resources.displayMetrics.density
+
+    private fun updateBoxNumber(index: Int) {
+        boxViews[index].findViewWithTag<TextView>(NUMBER_TEXT_TAG).text =
+            currentNumbers[index].toString()
+    }
+
+    private fun clearSelection() {
+        selectedBoxIndex?.let { resetBoxBackground(it) }
+        selectedBoxIndex = null
+    }
+
+    private fun resetBoxBackground(index: Int) {
+        if (currentNumbers[index] != targetNumbers[index]) {
+            revealedHintIndices.remove(index)
+        }
+        boxViews[index].setBackgroundResource(
+            if (index in revealedHintIndices) {
+                R.drawable.bg_slot_correct
+            } else {
+                R.drawable.bg_slot_filled
+            }
+        )
+    }
+
+    private fun checkOrder() {
+        if (isLevelFinished || isSwapping || gameOverOverlay.visibility == View.VISIBLE) return
+
+        clearSelection()
+        val correctCount = currentNumbers.indices.count {
+            currentNumbers[it] == targetNumbers[it]
+        }
+        checksUsed++
+
+        if (correctCount == targetNumbers.size) {
+            playCorrectSound()
+            tvFeedback.setTextColor(Color.parseColor("#6EF2A3"))
+            tvFeedback.setText(R.string.correct_order)
+            onWin()
+        } else {
+            playWrongSound()
+            tvFeedback.setTextColor(Color.parseColor("#FFB45C"))
+            tvFeedback.text = getString(R.string.mastermind_feedback, correctCount)
+            shakeView(boxContainer)
+        }
+    }
+
+    private fun useHint() {
+        if (isLevelFinished || isSwapping || hintsRemaining <= 0 ||
+            gameOverOverlay.visibility == View.VISIBLE
+        ) {
+            return
+        }
+
+        clearSelection()
+        // Find wrong indices that have NOT been hinted before
+        val wrongIndices = currentNumbers.indices.filter {
+            currentNumbers[it] != targetNumbers[it] && it !in revealedHintIndices
+        }
+        // Fallback: if all non-hinted are correct, try any wrong index
+        val candidates = wrongIndices.ifEmpty {
+            currentNumbers.indices.filter { currentNumbers[it] != targetNumbers[it] }
+        }
+        if (candidates.isEmpty()) return
+
+        val targetIndex = candidates.random()
+        val sourceIndex = currentNumbers.indexOf(targetNumbers[targetIndex])
+        if (sourceIndex < 0) return
+
+        animateNumberSwap(targetIndex, sourceIndex) {
+            val displacedValue = currentNumbers[targetIndex]
+            currentNumbers[targetIndex] = currentNumbers[sourceIndex]
+            currentNumbers[sourceIndex] = displacedValue
+            revealedHintIndices.add(targetIndex)
+        }
+
+        hintsRemaining--
+        hintsUsed++
+        combo = (combo - 1).coerceAtLeast(0)
+        updateCombo()
+        updateHintButton()
+        tvFeedback.setTextColor(Color.parseColor("#6EF2A3"))
+        tvFeedback.text = getString(R.string.hint_revealed, targetIndex + 1)
+    }
+
+    private fun updateHintButton() {
+        btnHint.text = getString(R.string.hint_button, hintsRemaining)
+        btnHint.alpha = if (hintsRemaining > 0) 1f else 0.45f
+        btnHint.isEnabled = hintsRemaining > 0
+    }
+
+    private fun updateCombo() {
+        tvCombo.text = getString(R.string.combo_format, combo)
+    }
+
+    private fun shakeView(view: View) {
+        ObjectAnimator.ofFloat(
+            view,
+            "translationX",
+            0f,
+            10f,
+            -10f,
+            8f,
+            -8f,
+            4f,
+            -4f,
+            0f
+        ).apply {
+            duration = 500
+            start()
+        }
+    }
+
+    private fun onWin() {
         timer?.cancel()
-        var allCorrect = true
+        isLevelFinished = true
+        val stars = calculateStars()
+        combo++
+        val levelScore = timeLeft * 10 + currentLevel * 50 + combo * 25 + stars * 100
+        score += levelScore
+        tvScore.text = score.toString()
+        updateCombo()
+        saveBestScore()
+        tvBestScore.text = bestScore.toString()
+        findViewById<TextView>(R.id.tvWinStars).text = "★".repeat(stars) +
+            "☆".repeat(3 - stars)
+        val winStats = getString(
+            R.string.win_stats,
+            levelScore,
+            checksUsed,
+            combo
+        )
+        findViewById<TextView>(R.id.tvWinStats).text = winStats
 
-        for (i in secretNumbers.indices) {
-            val box = boxViews[i]
-            if (userGuesses[i] == secretNumbers[i]) {
-                box.setBackgroundResource(R.drawable.bg_mystery_box_correct)
-            } else {
-                box.setBackgroundResource(R.drawable.bg_mystery_box_wrong)
-                allCorrect = false
-            }
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val previousHighest = prefs.getInt(KEY_HIGHEST_LEVEL, 0)
+        if (currentLevel > previousHighest) {
+            prefs.edit().putInt(KEY_HIGHEST_LEVEL, currentLevel).apply()
         }
 
-        if (allCorrect) {
-            // WIN
-            score += timeLeft * 10 + currentLevel * 50
-            tvScore.text = "🏆 $score"
-
-            // Delay then show win
-            boxContainer.postDelayed({
-                winOverlay.visibility = View.VISIBLE
-                val fadeIn = ObjectAnimator.ofFloat(winOverlay, "alpha", 0f, 1f)
-                fadeIn.duration = 300
-                fadeIn.start()
-            }, 800)
-        } else {
-            // Wrong answer - lose a life
-            lives--
-            updateHearts()
-
-            if (lives <= 0) {
-                boxContainer.postDelayed({
-                    showGameOver()
-                }, 1000)
-            } else {
-                // Reset for retry with same secret
-                boxContainer.postDelayed({
-                    resetBoxes()
-                    startTimer()
-                }, 1200)
-            }
-        }
+        boxContainer.postDelayed({
+            winOverlay.alpha = 0f
+            winOverlay.visibility = View.VISIBLE
+            winOverlay.animate().alpha(1f).setDuration(300).start()
+        }, 500)
     }
 
-    private fun resetBoxes() {
-        userGuesses = MutableList(secretNumbers.size) { null }
-        selectedBoxIndex = 0
-        for (i in boxViews.indices) {
-            val box = boxViews[i]
-            box.setBackgroundResource(if (i == 0) R.drawable.bg_mystery_box_selected else R.drawable.bg_mystery_box)
-            val tvQuestion = box.findViewWithTag<TextView>("questionText")
-            tvQuestion.text = "?"
-            tvQuestion.setTextColor(Color.parseColor("#78909C"))
+    private fun calculateStars(): Int {
+        val ratio = timeLeft.toFloat() / timerDuration
+        return when {
+            ratio >= 0.5f && checksUsed <= 1 && hintsUsed == 0 -> 3
+            ratio >= 0.25f && checksUsed <= 3 -> 2
+            else -> 1
         }
     }
 
@@ -385,7 +595,7 @@ class GameActivity : AppCompatActivity() {
         timer?.cancel()
         timer = object : CountDownTimer(timeLeft * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
-                timeLeft = (millisUntilFinished / 1000).toInt()
+                timeLeft = (millisUntilFinished / 1000L).toInt()
                 updateTimerDisplay()
             }
 
@@ -397,18 +607,101 @@ class GameActivity : AppCompatActivity() {
         }.start()
     }
 
+    private fun updateTimerDisplay() {
+        tvTimer.text = getString(R.string.timer_format, timeLeft)
+        progressBar.max = timerDuration
+        progressBar.progress = timeLeft
+
+        val remainingRatio = if (timerDuration > 0) {
+            timeLeft.toFloat() / timerDuration
+        } else {
+            0f
+        }
+
+        val (progressDrawable, timerColor) = when {
+            remainingRatio <= 0.2f ->
+                R.drawable.bg_progress_game_red to Color.parseColor("#FF4B72")
+            remainingRatio <= 0.5f ->
+                R.drawable.bg_progress_game_yellow to Color.parseColor("#FFD54F")
+            else ->
+                R.drawable.bg_progress_game to Color.WHITE
+        }
+        progressBar.setProgressDrawableTiled(getDrawable(progressDrawable))
+        tvTimer.setTextColor(timerColor)
+    }
+
     private fun showGameOver() {
         timer?.cancel()
-        val tvMsg = findViewById<TextView>(R.id.tvGameOverMsg)
-        tvMsg.text = getString(R.string.game_over_message, currentLevel)
+        combo = 0
+        hintsRemaining = 0
+        updateCombo()
+        updateHintButton()
+        clearSelection()
+        saveBestScore()
+        findViewById<TextView>(R.id.tvGameOverMsg).text =
+            getString(R.string.game_over_message, currentLevel)
+        gameOverOverlay.alpha = 0f
         gameOverOverlay.visibility = View.VISIBLE
-        val fadeIn = ObjectAnimator.ofFloat(gameOverOverlay, "alpha", 0f, 1f)
-        fadeIn.duration = 300
-        fadeIn.start()
+        updateGameOverActions()
+        gameOverOverlay.animate().alpha(1f).setDuration(300).start()
+    }
+
+    private fun updateGameOverActions() {
+        findViewById<View>(R.id.btnWatchAd).visibility =
+            if (adEntitlement.isAdFree()) View.GONE else View.VISIBLE
+        findViewById<TextView>(R.id.tvExtraTimeCoinAction).text = getString(
+            R.string.use_coins_for_time,
+            CoinWallet.EXTRA_TIME_COST,
+            coinWallet.getBalance()
+        )
+    }
+
+    private fun playCorrectSound() {
+        if (soundEnabled && correctSoundId != 0) {
+            soundPool?.play(correctSoundId, 1f, 1f, 1, 0, 1f)
+        }
+    }
+
+    private fun playWrongSound() {
+        if (soundEnabled && wrongSoundId != 0) {
+            soundPool?.play(wrongSoundId, 1f, 1f, 1, 0, 1f)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        soundEnabled = getSharedPreferences(SOUND_PREF_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_SOUND_ENABLED, true)
+        if (::coinWallet.isInitialized && gameOverOverlay.visibility == View.VISIBLE) {
+            updateGameOverActions()
+        }
+    }
+
+    private fun continueWithExtraTime(extraSeconds: Int) {
+        gameOverOverlay.visibility = View.GONE
+        timerDuration = extraSeconds
+        timeLeft = extraSeconds
+        updateTimerDisplay()
+        startTimer()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         timer?.cancel()
+        soundPool?.release()
+        soundPool = null
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val PREF_NAME = "mystery_game_prefs"
+        private const val KEY_BEST_SCORE = "best_score"
+        private const val KEY_HIGHEST_LEVEL = "highest_level_cleared"
+        private const val NUMBER_TEXT_TAG = "numberText"
+        private const val SOUND_PREF_NAME = "game_prefs"
+        private const val KEY_SOUND_ENABLED = "sound_enabled"
+        private const val SWAP_TRAVEL_DURATION_MS = 420L
+        private const val SWAP_LANDING_DURATION_MS = 220L
+        private const val REWARDED_AD_SECONDS = 15
+        private const val COIN_EXTRA_TIME_SECONDS = 20
     }
 }

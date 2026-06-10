@@ -2,8 +2,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_dark">
-
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/bg_splash"
+        android:scaleType="centerCrop"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -11,20 +15,16 @@
         android:gravity="center">
 
         <!-- App Icon -->
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/bg_mystery_box_selected"
-            android:gravity="center"
-            android:text="✦"
-            android:textColor="#5CFFC4"
-            android:textSize="48sp" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="@dimen/_130sdp"
+            android:layout_height="@dimen/_130sdp"
+            app:srcCompat="@drawable/logo_number" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:text="@string/app_name"
+            android:layout_marginTop="@dimen/_15sdp"
             android:textColor="@color/text_primary"
             android:textSize="36sp"
             android:textStyle="bold" />

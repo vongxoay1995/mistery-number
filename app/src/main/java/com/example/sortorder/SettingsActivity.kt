@@ -3,21 +3,21 @@ package com.example.sortorder
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Switch
+import androidx.appcompat.widget.SwitchCompat
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 
 class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
+        FullScreenHelper.apply(this)
 
         val tvVersion = findViewById<TextView>(R.id.tvVersion)
-        tvVersion.text = getString(R.string.version_format, "1.0.0")
+        val versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
+        tvVersion.text = getString(R.string.version_format, versionName)
 
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
 
@@ -25,7 +25,7 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, PremiumActivity::class.java))
         }
 
-        val switchSound = findViewById<Switch>(R.id.switchSound)
+        val switchSound = findViewById<SwitchCompat>(R.id.switchSound)
         val prefs = getSharedPreferences("game_prefs", MODE_PRIVATE)
         switchSound.isChecked = prefs.getBoolean("sound_enabled", true)
         switchSound.setOnCheckedChangeListener { _, isChecked ->
@@ -33,7 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnRate).setOnClickListener {
-            Toast.makeText(this, "Cảm ơn bạn!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.rate_thanks, Toast.LENGTH_SHORT).show()
         }
 
         findViewById<View>(R.id.btnPolicy).setOnClickListener {

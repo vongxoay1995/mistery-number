@@ -1,58 +1,230 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_dark">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Decorative circles -->
-    <View
-        android:layout_width="280dp"
-        android:layout_height="280dp"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="-60dp"
-        android:layout_marginEnd="-40dp"
-        android:background="@drawable/bg_number_pad_pressed"
-        android:alpha="0.08" />
+    <!-- Full-screen background image -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/bg_splash"
+        android:scaleType="centerCrop"/>
 
-    <View
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="-20dp"
-        android:layout_marginEnd="-20dp"
-        android:background="@drawable/bg_number_pad_pressed"
-        android:alpha="0.05" />
+    <!-- Top bar: Score (left) + Premium & Settings (right) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
+        <!-- Score badge (trophy + score) -->
+        <LinearLayout
+            android:id="@+id/scoreBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="16dp">
+
+            <!-- Trophy icon -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_trophy"
+                android:contentDescription="@string/score_content_description" />
+
+            <!-- Score text -->
+            <TextView
+                android:id="@+id/tvScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/zero"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnPremium"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_btn_gold"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="12dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:contentDescription="@string/coin_icon"
+                android:src="@drawable/ic_coin" />
+
+            <TextView
+                android:id="@+id/tvCoins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/default_coin_count"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Settings button -->
+        <FrameLayout
+            android:id="@+id/btnSettings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_settings_circle"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_setting"
+                android:contentDescription="@string/settings_title" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Center content: App icon + Title + Subtitle + Play button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
+        <!-- App icon -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/logo_number"
+            android:scaleType="fitCenter" />
+
+        <!-- App title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/guess_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+
+        <!-- Spacer before play button -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="40dp" />
+
+        <!-- Play button container with ripple rings -->
+        <FrameLayout
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <!-- Ripple wave 1 (outermost, starts first) -->
+            <View
+                android:id="@+id/rippleWave1"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:alpha="0"
+                android:background="@drawable/bg_play_ripple" />
+
+            <!-- Ripple wave 2 (staggered) -->
+            <View
+                android:id="@+id/rippleWave2"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:alpha="0"
+                android:background="@drawable/bg_play_ripple" />
+
+            <!-- Ripple wave 3 (staggered) -->
+            <View
+                android:id="@+id/rippleWave3"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:alpha="0"
+                android:background="@drawable/bg_play_ripple" />
+
+            <!-- Subtle static glow behind button -->
+            <View
+                android:id="@+id/playGlow"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center"
+                android:alpha="0.4"
+                android:background="@drawable/bg_play_glow_inner" />
+
+            <!-- Play button circle -->
+            <FrameLayout
+                android:id="@+id/btnPlay"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_play_button"
+                android:clickable="true"
+                android:focusable="true">
+
+                <!-- Play triangle icon -->
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_play_triangle"
+                    android:contentDescription="@string/play_content_description" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- "Tap to play" text -->
         <TextView
             android:id="@+id/tvTapToPlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:text="@string/tap_to_play"
-            android:textColor="@color/text_primary"
-            android:textSize="24sp"
+            android:textColor="@color/accent_teal"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <!-- Settings icon -->
-    <ImageView
-        android:id="@+id/btnSettings"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="16dp"
-        android:padding="12dp"
-        android:src="@android:drawable/ic_menu_preferences"
-        android:contentDescription="Settings"
-        android:clickable="true"
-        android:focusable="true" />
 
     <!-- Ad Banner at bottom -->
     <LinearLayout
@@ -76,7 +248,7 @@
             android:paddingEnd="8dp"
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
-            android:text="AD"
+            android:text="@string/ad_badge"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -103,5 +275,12 @@
                 android:textColor="@color/ad_text"
                 android:textSize="12sp" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sponsored"
+            android:textColor="@color/ad_text"
+            android:textSize="12sp" />
     </LinearLayout>
 </FrameLayout>

@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">SwapNum</string>
+    <string name="app_subtitle">الأرقام الغامضة</string>
+    <string name="loading">جارٍ التحميل…</string>
+
+    <string name="tap_to_play">اضغط للعب</string>
+    <string name="guess_subtitle">رتّب سلسلة الأرقام الغامضة بالترتيب الصحيح</string>
+    <string name="back">رجوع</string>
+    <string name="play_content_description">تشغيل</string>
+    <string name="score_content_description">النقاط</string>
+    <string name="timer_content_description">المؤقت</string>
+    <string name="coin_icon">عملة</string>
+    <string name="zero">0</string>
+    <string name="default_coin_count">15</string>
+    <string name="default_coin_balance">15 عملة</string>
+
+    <string name="level_format">المستوى %1$d</string>
+    <string name="level_preview">المستوى 1</string>
+    <string name="score_label">النقاط</string>
+    <string name="best_score_label">أفضل نتيجة</string>
+    <string name="timer_label">الوقت</string>
+    <string name="score_format">🏆 %1$d</string>
+    <string name="timer_format">%1$d ث</string>
+    <string name="timer_preview">25 ث</string>
+    <string name="hint_bottom">بدّل مربعات الأرقام لاكتشاف الترتيب الصحيح للسلسلة الغامضة.</string>
+    <string name="check">تحقق</string>
+    <string name="correct_order">صحيح! لقد رتبت السلسلة.</string>
+    <string name="mastermind_feedback">المواضع الصحيحة: %1$d</string>
+    <string name="hint_button">تلميح (%1$d)</string>
+    <string name="hint_revealed">تم نقل المربع %1$d إلى الموضع الصحيح.</string>
+    <string name="combo_format">كومبو x%1$d</string>
+    <string name="combo_preview">كومبو x0</string>
+    <string name="rule_adjacent">بدّل المربعات المتجاورة فقط</string>
+    <string name="adjacent_swap_only">يسمح هذا المستوى بتبديل مربعين متجاورين فقط.</string>
+    <plurals name="correct_positions_count">
+        <item quantity="zero">لا توجد مواضع صحيحة.</item>
+        <item quantity="one">موضع صحيح واحد.</item>
+        <item quantity="two">موضعان صحيحان.</item>
+        <item quantity="few">%1$d مواضع صحيحة.</item>
+        <item quantity="many">%1$d موضعًا صحيحًا.</item>
+        <item quantity="other">%1$d موضع صحيح.</item>
+    </plurals>
+    <string name="all_levels_completed">لقد أكملت جميع المستويات!</string>
+
+    <string name="choose_number">اختر رقمًا</string>
+    <string name="cancel">إلغاء</string>
+
+    <string name="time_up">انتهى الوقت!</string>
+    <string name="game_over_message">خسرت في المستوى %1$d. هل تريد إضافة وقت للمتابعة؟</string>
+    <string name="rewarded_ad_icon">▶</string>
+    <string name="watch_ad_for_time">شاهد إعلانًا · أضف 15 ثانية</string>
+    <string name="use_coins_for_time">%1$d عملة · أضف 20 ثانية (المتوفر %2$d)</string>
+    <string name="use_coins_placeholder">15 عملة · أضف 20 ثانية</string>
+    <string name="open_coin_store">فتح متجر العملات</string>
+    <string name="not_enough_coins">لا توجد عملات كافية. اشترِ المزيد من المتجر.</string>
+    <string name="ok_go_home">حسنًا · العودة للرئيسية</string>
+
+    <string name="settings_title">الإعدادات</string>
+    <string name="unlock_premium">فتح متجر العملات</string>
+    <string name="premium_desc">اشترِ العملات أو أزل جميع الإعلانات</string>
+    <string name="sound">الصوت</string>
+    <string name="sound_desc">تفعيل أصوات اللعبة</string>
+    <string name="rate_app">قيّم التطبيق</string>
+    <string name="rate_app_desc">امنحنا 5 نجوم على Google Play</string>
+    <string name="rate_thanks">شكرًا لك!</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <string name="privacy_policy_sub">كيفية التعامل مع بياناتك</string>
+    <string name="version_format">الإصدار %1$s</string>
+
+    <string name="premium_title">العملات</string>
+    <string name="premium_heading">افتح كل الميزات</string>
+    <string name="premium_subtitle">استمتع بالتجربة الكاملة بلا إعلانات</string>
+    <string name="premium_feature_1">إزالة جميع الإعلانات</string>
+    <string name="premium_feature_2">فتح وقت إضافي غير محدود</string>
+    <string name="premium_feature_3">الحصول على تلميحات أكثر في كل مستوى</string>
+    <string name="premium_feature_4">استخدام أيقونات وسمات حصرية</string>
+    <string name="premium_feature_5">دعم المطور</string>
+    <string name="buy_now">اشترِ الآن · 49,000 ₫</string>
+    <string name="buy_once">شراء مرة واحدة · استخدام دائم</string>
+    <string name="coin_store_title">متجر العملات</string>
+    <string name="coin_store_subtitle">احصل على المزيد من العملات أو أزل جميع الإعلانات نهائيًا.</string>
+    <string name="coin_balance">%1$d عملة</string>
+    <string name="coin_pack_100">100 عملة</string>
+    <string name="remove_all_ads">إزالة جميع الإعلانات</string>
+    <string name="ads_already_removed">تمت إزالة جميع الإعلانات</string>
+    <string name="iap_product_with_price">%1$s · %2$s</string>
+    <string name="billing_connecting">جارٍ الاتصال بـ Google Play…</string>
+    <string name="billing_ready">عمليات الشراء عبر Google Play جاهزة.</string>
+    <string name="billing_products_unavailable">المنتجات غير متاحة. تحقق من إعداد المنتجات في Play Console.</string>
+    <string name="billing_unavailable">خدمة Google Play Billing غير متاحة حاليًا.</string>
+    <string name="billing_disconnected">انقطع الاتصال بـ Google Play. أعد فتح المتجر.</string>
+    <string name="billing_error">تعذر بدء عملية الشراء. حاول مرة أخرى.</string>
+    <string name="purchase_pending">عملية الشراء بانتظار تأكيد Google Play.</string>
+    <string name="coins_added">تمت إضافة %1$d عملة.</string>
+    <string name="ads_removed_success">تمت إزالة جميع الإعلانات.</string>
+
+    <string name="policy_title">سياسة الخصوصية</string>
+    <string name="policy_intro">نحن نحترم خصوصيتك. يجمع SwapNum الحد الأدنى فقط من البيانات اللازمة لتقديم تجربة اللعبة.</string>
+    <string name="policy_section1_title">1. جمع البيانات</string>
+    <string name="policy_section1_body">لا نجمع معلومات تعريف شخصية. تُحفظ بيانات النقاط محليًا على جهازك.</string>
+    <string name="policy_section2_title">2. الإعلانات وعمليات الشراء</string>
+    <string name="policy_section2_body">قد يعرض التطبيق إعلانات من جهات خارجية ويتيح شراء العملات عبر Google Play Billing.</string>
+    <string name="policy_section3_title">3. التواصل</string>
+    <string name="policy_section3_body">للأسئلة، تواصل معنا عبر:\nsupport@mysterynumbers.app</string>
+    <string name="policy_updated">آخر تحديث: 31 مايو 2026</string>
+
+    <string name="ad_badge">إعلان</string>
+    <string name="ad_placeholder">إعلانك هنا</string>
+    <string name="ad_size">بانر 320×50 · تجريبي</string>
+    <string name="sponsored">برعاية</string>
+
+    <string name="win_message">تهانينا! لقد وجدت الترتيب الصحيح!</string>
+    <string name="win_stats">+%1$d نقطة · %2$d محاولات تحقق · كومبو x%3$d</string>
+    <string name="next_level">المستوى التالي</string>
+</resources>

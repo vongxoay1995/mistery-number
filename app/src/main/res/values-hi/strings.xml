@@ -1,0 +1,111 @@
+<resources>
+    <string name="app_name">SwapNum</string>
+    <string name="app_subtitle">रहस्यमयी संख्याएँ</string>
+    <string name="loading">लोड हो रहा है…</string>
+
+    <string name="tap_to_play">खेलने के लिए टैप करें</string>
+    <string name="guess_subtitle">रहस्यमयी संख्या क्रम को सही क्रम में लगाएँ</string>
+    <string name="back">वापस</string>
+    <string name="play_content_description">खेलें</string>
+    <string name="score_content_description">स्कोर</string>
+    <string name="timer_content_description">टाइमर</string>
+    <string name="coin_icon">कॉइन</string>
+    <string name="zero">0</string>
+    <string name="default_coin_count">15</string>
+    <string name="default_coin_balance">15 कॉइन</string>
+
+    <string name="level_format">स्तर %1$d</string>
+    <string name="level_preview">स्तर 1</string>
+    <string name="score_label">स्कोर</string>
+    <string name="best_score_label">सर्वश्रेष्ठ स्कोर</string>
+    <string name="timer_label">समय</string>
+    <string name="score_format">🏆 %1$d</string>
+    <string name="timer_format">%1$d सेकंड</string>
+    <string name="timer_preview">25 सेकंड</string>
+    <string name="hint_bottom">रहस्यमयी क्रम का सही क्रम खोजने के लिए संख्या टाइलों की जगह बदलें।</string>
+    <string name="check">जाँचें</string>
+    <string name="correct_order">सही! आपने क्रम ठीक लगा दिया।</string>
+    <string name="mastermind_feedback">सही स्थान: %1$d</string>
+    <string name="hint_button">संकेत (%1$d)</string>
+    <string name="hint_revealed">टाइल %1$d को सही स्थान पर रख दिया गया।</string>
+    <string name="combo_format">कॉम्बो x%1$d</string>
+    <string name="combo_preview">कॉम्बो x0</string>
+    <string name="rule_adjacent">केवल पास वाली टाइलों की जगह बदलें</string>
+    <string name="adjacent_swap_only">इस स्तर में केवल दो पास वाली टाइलों की जगह बदली जा सकती है।</string>
+    <plurals name="correct_positions_count">
+        <item quantity="one">%1$d सही स्थान।</item>
+        <item quantity="other">%1$d सही स्थान।</item>
+    </plurals>
+    <string name="all_levels_completed">आपने सभी स्तर पूरे कर लिए!</string>
+
+    <string name="choose_number">एक संख्या चुनें</string>
+    <string name="cancel">रद्द करें</string>
+
+    <string name="time_up">समय समाप्त!</string>
+    <string name="game_over_message">आप स्तर %1$d पर हार गए। जारी रखने के लिए समय बढ़ाएँ?</string>
+    <string name="rewarded_ad_icon">▶</string>
+    <string name="watch_ad_for_time">विज्ञापन देखें · 15 सेकंड जोड़ें</string>
+    <string name="use_coins_for_time">%1$d कॉइन · 20 सेकंड जोड़ें (%2$d उपलब्ध)</string>
+    <string name="use_coins_placeholder">15 कॉइन · 20 सेकंड जोड़ें</string>
+    <string name="open_coin_store">कॉइन स्टोर खोलें</string>
+    <string name="not_enough_coins">पर्याप्त कॉइन नहीं हैं। स्टोर से और कॉइन खरीदें।</string>
+    <string name="ok_go_home">ठीक है · होम पर जाएँ</string>
+
+    <string name="settings_title">सेटिंग</string>
+    <string name="unlock_premium">कॉइन स्टोर खोलें</string>
+    <string name="premium_desc">कॉइन खरीदें या सभी विज्ञापन हटाएँ</string>
+    <string name="sound">ध्वनि</string>
+    <string name="sound_desc">खेल की ध्वनि चालू करें</string>
+    <string name="rate_app">ऐप को रेट करें</string>
+    <string name="rate_app_desc">Google Play पर हमें 5 स्टार दें</string>
+    <string name="rate_thanks">धन्यवाद!</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="privacy_policy_sub">आपके डेटा का उपयोग कैसे होता है</string>
+    <string name="version_format">संस्करण %1$s</string>
+
+    <string name="premium_title">कॉइन</string>
+    <string name="premium_heading">सब कुछ अनलॉक करें</string>
+    <string name="premium_subtitle">बिना विज्ञापन का पूरा अनुभव पाएँ</string>
+    <string name="premium_feature_1">सभी विज्ञापन हटाएँ</string>
+    <string name="premium_feature_2">असीमित अतिरिक्त समय अनलॉक करें</string>
+    <string name="premium_feature_3">हर स्तर पर अधिक संकेत पाएँ</string>
+    <string name="premium_feature_4">विशेष आइकन और थीम इस्तेमाल करें</string>
+    <string name="premium_feature_5">डेवलपर का समर्थन करें</string>
+    <string name="buy_now">अभी खरीदें · ₫49,000</string>
+    <string name="buy_once">एक बार खरीदें · हमेशा उपयोग करें</string>
+    <string name="coin_store_title">कॉइन स्टोर</string>
+    <string name="coin_store_subtitle">अधिक कॉइन पाएँ या सभी विज्ञापन हमेशा के लिए हटाएँ।</string>
+    <string name="coin_balance">%1$d कॉइन</string>
+    <string name="coin_pack_100">100 कॉइन</string>
+    <string name="remove_all_ads">सभी विज्ञापन हटाएँ</string>
+    <string name="ads_already_removed">सभी विज्ञापन हटाए जा चुके हैं</string>
+    <string name="iap_product_with_price">%1$s · %2$s</string>
+    <string name="billing_connecting">Google Play से कनेक्ट हो रहा है…</string>
+    <string name="billing_ready">Google Play खरीदारी के लिए तैयार है।</string>
+    <string name="billing_products_unavailable">उत्पाद उपलब्ध नहीं हैं। Play Console में उत्पाद कॉन्फ़िगरेशन जाँचें।</string>
+    <string name="billing_unavailable">Google Play Billing अभी उपलब्ध नहीं है।</string>
+    <string name="billing_disconnected">Google Play से कनेक्शन टूट गया। स्टोर फिर से खोलें।</string>
+    <string name="billing_error">खरीद शुरू नहीं हो सकी। कृपया फिर प्रयास करें।</string>
+    <string name="purchase_pending">खरीद Google Play की पुष्टि की प्रतीक्षा कर रही है।</string>
+    <string name="coins_added">%1$d कॉइन जोड़ दिए गए।</string>
+    <string name="ads_removed_success">सभी विज्ञापन हटा दिए गए हैं।</string>
+
+    <string name="policy_title">गोपनीयता नीति</string>
+    <string name="policy_intro">हम आपकी गोपनीयता का सम्मान करते हैं। SwapNum खेल अनुभव देने के लिए केवल न्यूनतम आवश्यक डेटा एकत्र करता है।</string>
+    <string name="policy_section1_title">1. डेटा संग्रह</string>
+    <string name="policy_section1_body">हम व्यक्तिगत पहचान योग्य जानकारी एकत्र नहीं करते। स्कोर डेटा आपके डिवाइस पर स्थानीय रूप से सहेजा जाता है।</string>
+    <string name="policy_section2_title">2. विज्ञापन और खरीद</string>
+    <string name="policy_section2_body">ऐप तीसरे पक्ष के विज्ञापन दिखा सकता है और Google Play Billing के माध्यम से कॉइन खरीदने की सुविधा दे सकता है।</string>
+    <string name="policy_section3_title">3. संपर्क</string>
+    <string name="policy_section3_body">सवालों के लिए संपर्क करें:\nsupport@mysterynumbers.app</string>
+    <string name="policy_updated">अंतिम अपडेट: 31 मई 2026</string>
+
+    <string name="ad_badge">विज्ञापन</string>
+    <string name="ad_placeholder">आपका विज्ञापन यहाँ</string>
+    <string name="ad_size">320×50 बैनर · डेमो</string>
+    <string name="sponsored">प्रायोजित</string>
+
+    <string name="win_message">बधाई! आपने सही क्रम खोज लिया!</string>
+    <string name="win_stats">+%1$d अंक · %2$d जाँच · कॉम्बो x%3$d</string>
+    <string name="next_level">अगला स्तर</string>
+</resources>

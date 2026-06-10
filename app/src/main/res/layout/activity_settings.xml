@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark"
@@ -8,26 +9,34 @@
     <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="104dp"
         android:paddingTop="48dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="16dp">
+        android:paddingBottom="8dp">
 
-        <ImageView
+        <FrameLayout
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_revert"
-            android:contentDescription="Back" />
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/bg_btn_back">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back_arrow"
+                android:contentDescription="@string/back" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="6dp"
             android:text="@string/settings_title"
             android:textColor="@color/text_primary"
             android:textSize="20sp"
@@ -56,13 +65,13 @@
                 android:orientation="horizontal"
                 android:padding="20dp">
 
-                <TextView
+                <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/bg_icon_circle"
-                    android:gravity="center"
-                    android:text="👑"
-                    android:textSize="20sp" />
+                    android:contentDescription="@string/coin_icon"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_coin" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -136,11 +145,13 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <Switch
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/switchSound"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true" />
+                    android:checked="true"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
             </LinearLayout>
 
             <!-- Rate App -->

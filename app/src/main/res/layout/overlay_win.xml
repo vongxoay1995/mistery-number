@@ -36,6 +36,26 @@
             android:gravity="center" />
 
         <TextView
+            android:id="@+id/tvWinStars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:letterSpacing="0.08"
+            android:text="★★★"
+            android:textColor="#FFD54F"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvWinStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="#EEFFFFFF"
+            android:textSize="14sp" />
+
+        <TextView
             android:id="@+id/btnNextLevel"
             android:layout_width="match_parent"
             android:layout_height="52dp"

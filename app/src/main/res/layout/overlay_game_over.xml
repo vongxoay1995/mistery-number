@@ -43,29 +43,71 @@
             android:textColor="#DDFFFFFF"
             android:textSize="14sp" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/btnWatchAd"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:background="@drawable/bg_btn_green"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/watch_ad_option"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
-        <TextView
-            android:id="@+id/btnBuyPremium"
+            <TextView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:text="@string/rewarded_ad_icon"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/watch_ad_for_time"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnUseCoins"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_btn_gold"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/buy_premium_option"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/coin_icon"
+                android:src="@drawable/ic_coin" />
+
+            <TextView
+                android:id="@+id/tvExtraTimeCoinAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/use_coins_placeholder"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/btnGoHome"

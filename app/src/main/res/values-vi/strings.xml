@@ -1,0 +1,111 @@
+<resources>
+    <string name="app_name">SwapNum</string>
+    <string name="app_subtitle">Những con số bí ẩn</string>
+    <string name="loading">Đang tải…</string>
+
+    <string name="tap_to_play">Chạm để chơi</string>
+    <string name="guess_subtitle">Sắp xếp đúng thứ tự của chuỗi số bí ẩn</string>
+    <string name="back">Quay lại</string>
+    <string name="play_content_description">Chơi</string>
+    <string name="score_content_description">Điểm số</string>
+    <string name="timer_content_description">Đồng hồ</string>
+    <string name="coin_icon">Coin</string>
+    <string name="zero">0</string>
+    <string name="default_coin_count">15</string>
+    <string name="default_coin_balance">15 coin</string>
+
+    <string name="level_format">Cấp độ %1$d</string>
+    <string name="level_preview">Cấp độ 1</string>
+    <string name="score_label">Điểm số</string>
+    <string name="best_score_label">Điểm cao</string>
+    <string name="timer_label">Thời gian</string>
+    <string name="score_format">🏆 %1$d</string>
+    <string name="timer_format">%1$d giây</string>
+    <string name="timer_preview">25 giây</string>
+    <string name="hint_bottom">Hoán đổi các ô số để tìm đúng thứ tự của chuỗi số bí mật.</string>
+    <string name="check">Kiểm tra</string>
+    <string name="correct_order">Chính xác! Bạn đã sắp xếp đúng.</string>
+    <string name="mastermind_feedback">Đúng vị trí: %1$d</string>
+    <string name="hint_button">Gợi ý (%1$d)</string>
+    <string name="hint_revealed">Đã đưa ô số %1$d về đúng vị trí.</string>
+    <string name="combo_format">Combo x%1$d</string>
+    <string name="combo_preview">Combo x0</string>
+    <string name="rule_adjacent">Chỉ đổi hai ô liền kề</string>
+    <string name="adjacent_swap_only">Cấp độ này chỉ cho phép đổi hai ô liền kề.</string>
+    <plurals name="correct_positions_count">
+        <item quantity="one">Đúng %1$d vị trí.</item>
+        <item quantity="other">Đúng %1$d vị trí.</item>
+    </plurals>
+    <string name="all_levels_completed">Bạn đã hoàn thành tất cả cấp độ!</string>
+
+    <string name="choose_number">Chọn một số</string>
+    <string name="cancel">Hủy</string>
+
+    <string name="time_up">Hết thời gian!</string>
+    <string name="game_over_message">Bạn đã thất bại ở cấp độ %1$d. Thêm thời gian để tiếp tục?</string>
+    <string name="rewarded_ad_icon">▶</string>
+    <string name="watch_ad_for_time">Xem quảng cáo · Thêm 15 giây</string>
+    <string name="use_coins_for_time">%1$d coin · Thêm 20 giây (Đang có %2$d)</string>
+    <string name="use_coins_placeholder">15 coin · Thêm 20 giây</string>
+    <string name="open_coin_store">Mở cửa hàng coin</string>
+    <string name="not_enough_coins">Không đủ coin. Hãy mua thêm coin trong cửa hàng.</string>
+    <string name="ok_go_home">OK · Về màn hình chính</string>
+
+    <string name="settings_title">Cài đặt</string>
+    <string name="unlock_premium">Mở cửa hàng coin</string>
+    <string name="premium_desc">Mua coin hoặc xóa toàn bộ quảng cáo</string>
+    <string name="sound">Âm thanh</string>
+    <string name="sound_desc">Bật âm thanh trong trò chơi</string>
+    <string name="rate_app">Đánh giá ứng dụng</string>
+    <string name="rate_app_desc">Cho chúng tôi 5 sao trên Google Play</string>
+    <string name="rate_thanks">Cảm ơn bạn!</string>
+    <string name="privacy_policy">Chính sách bảo mật</string>
+    <string name="privacy_policy_sub">Cách dữ liệu của bạn được xử lý</string>
+    <string name="version_format">Phiên bản %1$s</string>
+
+    <string name="premium_title">Coin</string>
+    <string name="premium_heading">Mở khóa toàn bộ</string>
+    <string name="premium_subtitle">Trải nghiệm trọn vẹn không quảng cáo</string>
+    <string name="premium_feature_1">Tắt toàn bộ quảng cáo</string>
+    <string name="premium_feature_2">Mở khóa thêm thời gian không giới hạn</string>
+    <string name="premium_feature_3">Nhiều gợi ý hơn mỗi cấp độ</string>
+    <string name="premium_feature_4">Biểu tượng và chủ đề độc quyền</string>
+    <string name="premium_feature_5">Hỗ trợ nhà phát triển</string>
+    <string name="buy_now">Mua ngay · 49.000đ</string>
+    <string name="buy_once">Mua một lần · sử dụng vĩnh viễn</string>
+    <string name="coin_store_title">Cửa hàng coin</string>
+    <string name="coin_store_subtitle">Mua thêm coin hoặc xóa quảng cáo vĩnh viễn.</string>
+    <string name="coin_balance">%1$d coin</string>
+    <string name="coin_pack_100">100 coin</string>
+    <string name="remove_all_ads">Xóa toàn bộ quảng cáo</string>
+    <string name="ads_already_removed">Đã xóa toàn bộ quảng cáo</string>
+    <string name="iap_product_with_price">%1$s · %2$s</string>
+    <string name="billing_connecting">Đang kết nối Google Play…</string>
+    <string name="billing_ready">Google Play đã sẵn sàng thanh toán.</string>
+    <string name="billing_products_unavailable">Không tải được sản phẩm. Hãy kiểm tra cấu hình sản phẩm trên Play Console.</string>
+    <string name="billing_unavailable">Google Play Billing hiện không khả dụng.</string>
+    <string name="billing_disconnected">Mất kết nối Google Play. Hãy mở lại cửa hàng.</string>
+    <string name="billing_error">Không thể bắt đầu giao dịch. Vui lòng thử lại.</string>
+    <string name="purchase_pending">Giao dịch đang chờ Google Play xác nhận.</string>
+    <string name="coins_added">Đã cộng %1$d coin.</string>
+    <string name="ads_removed_success">Đã xóa toàn bộ quảng cáo.</string>
+
+    <string name="policy_title">Chính sách bảo mật</string>
+    <string name="policy_intro">Chúng tôi tôn trọng quyền riêng tư của bạn. SwapNum chỉ thu thập dữ liệu tối thiểu cần thiết để cung cấp trải nghiệm trò chơi.</string>
+    <string name="policy_section1_title">1. Dữ liệu thu thập</string>
+    <string name="policy_section1_body">Chúng tôi không thu thập thông tin nhận dạng cá nhân. Dữ liệu điểm số được lưu cục bộ trên thiết bị của bạn.</string>
+    <string name="policy_section2_title">2. Quảng cáo và giao dịch</string>
+    <string name="policy_section2_body">Ứng dụng có thể hiển thị quảng cáo từ bên thứ ba và cung cấp giao dịch mua coin thông qua Google Play Billing.</string>
+    <string name="policy_section3_title">3. Liên hệ</string>
+    <string name="policy_section3_body">Mọi câu hỏi vui lòng gửi về:\nsupport@mysterynumbers.app</string>
+    <string name="policy_updated">Cập nhật lần cuối: 31/05/2026</string>
+
+    <string name="ad_badge">QC</string>
+    <string name="ad_placeholder">Quảng cáo của bạn ở đây</string>
+    <string name="ad_size">Banner 320×50 · bản demo</string>
+    <string name="sponsored">Được tài trợ</string>
+
+    <string name="win_message">Chúc mừng! Bạn đã tìm đúng thứ tự!</string>
+    <string name="win_stats">+%1$d điểm · %2$d lần kiểm tra · Combo x%3$d</string>
+    <string name="next_level">Màn tiếp theo</string>
+</resources>

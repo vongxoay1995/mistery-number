@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sortorder"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -41,7 +41,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation("com.android.billingclient:billing:9.0.0")
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 
     testImplementation(libs.junit)

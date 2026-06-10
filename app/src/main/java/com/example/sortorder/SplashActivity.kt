@@ -6,15 +6,16 @@ import android.os.Handler
 import android.os.Looper
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
+        FullScreenHelper.apply(this)
 
         // Pulse animation for loading dot
         val loadingDot = findViewById<android.view.View>(R.id.loadingDot)
