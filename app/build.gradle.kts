@@ -10,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.sortorder"
+        applicationId = "com.swapnumber.puzzle"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation("com.android.billingclient:billing:9.0.0")
+    implementation("com.google.android.gms:play-services-ads:24.8.0")
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
     implementation("androidx.core:core-splashscreen:1.0.1")
 

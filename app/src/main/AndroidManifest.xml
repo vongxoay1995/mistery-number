@@ -3,8 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".SortOrderApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,9 +19,14 @@
         android:theme="@style/Theme.SortOrder"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3222539657172474~7042281992" />
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SortOrder.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,22 +36,27 @@
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="false"/>
 
         <activity
             android:name=".GameActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".PremiumActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".PolicyActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
     </application>
 

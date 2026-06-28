@@ -13,11 +13,12 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var bannerAdHelper: BannerAdHelper
 
     companion object {
         private const val PREF_NAME = "mystery_game_prefs"
@@ -52,18 +53,18 @@ class MainActivity : AppCompatActivity() {
         val tvScore = findViewById<TextView>(R.id.tvScore)
         val tvCoins = findViewById<TextView>(R.id.tvCoins)
         val btnSettings = findViewById<View>(R.id.btnSettings)
-        val btnPremium = findViewById<LinearLayout>(R.id.btnPremium)
         val btnPlay = findViewById<FrameLayout>(R.id.btnPlay)
         val rippleWave1 = findViewById<View>(R.id.rippleWave1)
         val rippleWave2 = findViewById<View>(R.id.rippleWave2)
         val rippleWave3 = findViewById<View>(R.id.rippleWave3)
         val playGlow = findViewById<View>(R.id.playGlow)
-        val adBanner = findViewById<View>(R.id.adBanner)
+        val adBanner = findViewById<FrameLayout>(R.id.adBanner)
 
         // Load and display score
         updateScore(tvScore)
         updateCoins(tvCoins)
-        adBanner.visibility = if (AdEntitlement(this).isAdFree()) View.GONE else View.VISIBLE
+        bannerAdHelper = BannerAdHelper(this, adBanner, AdMobIds.MAIN_BANNER)
+        bannerAdHelper.load()
 
         // =============================================
         // 1. RIPPLE WAVES — 3 sonar rings, staggered
@@ -182,10 +183,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Premium button
-        btnPremium.setOnClickListener {
-            startActivity(Intent(this, PremiumActivity::class.java))
-        }
     }
 
     override fun onResume() {
@@ -194,8 +191,20 @@ class MainActivity : AppCompatActivity() {
         val tvCoins = findViewById<TextView>(R.id.tvCoins)
         updateScore(tvScore)
         updateCoins(tvCoins)
-        findViewById<View>(R.id.adBanner).visibility =
-            if (AdEntitlement(this).isAdFree()) View.GONE else View.VISIBLE
+        if (::bannerAdHelper.isInitialized) {
+            bannerAdHelper.resume()
+            bannerAdHelper.refreshVisibility()
+        }
+    }
+
+    override fun onPause() {
+        if (::bannerAdHelper.isInitialized) bannerAdHelper.pause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        if (::bannerAdHelper.isInitialized) bannerAdHelper.destroy()
+        super.onDestroy()
     }
 
     private fun updateScore(tvScore: TextView) {

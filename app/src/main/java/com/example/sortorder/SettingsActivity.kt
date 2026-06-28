@@ -37,7 +37,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnPolicy).setOnClickListener {
-            startActivity(Intent(this, PolicyActivity::class.java))
+            openPrivacyPolicy()
         }
     }
 }

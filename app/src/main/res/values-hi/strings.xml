@@ -44,16 +44,18 @@
     <string name="time_up">समय समाप्त!</string>
     <string name="game_over_message">आप स्तर %1$d पर हार गए। जारी रखने के लिए समय बढ़ाएँ?</string>
     <string name="rewarded_ad_icon">▶</string>
-    <string name="watch_ad_for_time">विज्ञापन देखें · 15 सेकंड जोड़ें</string>
+    <string name="watch_ad_for_time">विज्ञापन देखें · +15 कॉइन और 15 सेकंड</string>
     <string name="use_coins_for_time">%1$d कॉइन · 20 सेकंड जोड़ें (%2$d उपलब्ध)</string>
     <string name="use_coins_placeholder">15 कॉइन · 20 सेकंड जोड़ें</string>
     <string name="open_coin_store">कॉइन स्टोर खोलें</string>
-    <string name="not_enough_coins">पर्याप्त कॉइन नहीं हैं। स्टोर से और कॉइन खरीदें।</string>
+    <string name="not_enough_coins">पर्याप्त कॉइन नहीं हैं।</string>
+    <string name="buy_15_coins">+15 कॉइन खरीदें</string>
+    <string name="rewarded_ad_not_ready">विज्ञापन अभी लोड हो रहा है। कृपया थोड़ी देर बाद फिर कोशिश करें।</string>
     <string name="ok_go_home">ठीक है · होम पर जाएँ</string>
 
     <string name="settings_title">सेटिंग</string>
-    <string name="unlock_premium">कॉइन स्टोर खोलें</string>
-    <string name="premium_desc">कॉइन खरीदें या सभी विज्ञापन हटाएँ</string>
+    <string name="unlock_premium">Premium</string>
+    <string name="premium_desc">बेहतर खेल अनुभव के लिए विज्ञापन हटाएँ</string>
     <string name="sound">ध्वनि</string>
     <string name="sound_desc">खेल की ध्वनि चालू करें</string>
     <string name="rate_app">ऐप को रेट करें</string>
@@ -63,11 +65,12 @@
     <string name="privacy_policy_sub">आपके डेटा का उपयोग कैसे होता है</string>
     <string name="version_format">संस्करण %1$s</string>
 
-    <string name="premium_title">कॉइन</string>
-    <string name="premium_heading">सब कुछ अनलॉक करें</string>
-    <string name="premium_subtitle">बिना विज्ञापन का पूरा अनुभव पाएँ</string>
-    <string name="premium_feature_1">सभी विज्ञापन हटाएँ</string>
-    <string name="premium_feature_2">असीमित अतिरिक्त समय अनलॉक करें</string>
+    <string name="premium_icon">Premium</string>
+    <string name="premium_title">Premium</string>
+    <string name="premium_heading">Premium</string>
+    <string name="premium_subtitle">एक बार अपग्रेड करके अधिक स्मूथ,\nबिना रुकावट वाला पजल अनुभव पाएँ।</string>
+    <string name="premium_feature_1">ऐप के सभी विज्ञापन हटाएँ</string>
+    <string name="premium_feature_2">अधिक स्मूथ ऐप अनुभव</string>
     <string name="premium_feature_3">हर स्तर पर अधिक संकेत पाएँ</string>
     <string name="premium_feature_4">विशेष आइकन और थीम इस्तेमाल करें</string>
     <string name="premium_feature_5">डेवलपर का समर्थन करें</string>
@@ -77,8 +80,14 @@
     <string name="coin_store_subtitle">अधिक कॉइन पाएँ या सभी विज्ञापन हमेशा के लिए हटाएँ।</string>
     <string name="coin_balance">%1$d कॉइन</string>
     <string name="coin_pack_100">100 कॉइन</string>
+    <string name="coin_pack_spin">+15 कॉइन</string>
     <string name="remove_all_ads">सभी विज्ञापन हटाएँ</string>
     <string name="ads_already_removed">सभी विज्ञापन हटाए जा चुके हैं</string>
+    <string name="premium_continue">जारी रखें</string>
+    <string name="premium_already_active">Premium सक्रिय है</string>
+    <string name="premium_price_fallback">49.000đ</string>
+    <string name="premium_purchase_caption">एक बार की खरीदारी · %1$s</string>
+    <string name="premium_purchase_caption_preview">एक बार की खरीदारी · 49.000đ</string>
     <string name="iap_product_with_price">%1$s · %2$s</string>
     <string name="billing_connecting">Google Play से कनेक्ट हो रहा है…</string>
     <string name="billing_ready">Google Play खरीदारी के लिए तैयार है।</string>
@@ -95,7 +104,7 @@
     <string name="policy_section1_title">1. डेटा संग्रह</string>
     <string name="policy_section1_body">हम व्यक्तिगत पहचान योग्य जानकारी एकत्र नहीं करते। स्कोर डेटा आपके डिवाइस पर स्थानीय रूप से सहेजा जाता है।</string>
     <string name="policy_section2_title">2. विज्ञापन और खरीद</string>
-    <string name="policy_section2_body">ऐप तीसरे पक्ष के विज्ञापन दिखा सकता है और Google Play Billing के माध्यम से कॉइन खरीदने की सुविधा दे सकता है।</string>
+    <string name="policy_section2_body">ऐप तीसरे पक्ष के विज्ञापन दिखा सकता है और Google Play Billing के माध्यम से विज्ञापन हटाने की एक बार की खरीदारी दे सकता है।</string>
     <string name="policy_section3_title">3. संपर्क</string>
     <string name="policy_section3_body">सवालों के लिए संपर्क करें:\nsupport@mysterynumbers.app</string>
     <string name="policy_updated">अंतिम अपडेट: 31 मई 2026</string>

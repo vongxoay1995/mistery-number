@@ -10,7 +10,6 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -20,33 +19,27 @@ import com.android.billingclient.api.QueryPurchasesParams
 class PremiumActivity : AppCompatActivity() {
 
     private lateinit var billingClient: BillingClient
-    private lateinit var coinWallet: CoinWallet
     private lateinit var adEntitlement: AdEntitlement
-    private lateinit var tvCoinBalance: TextView
+    private lateinit var btnContinue: TextView
+    private lateinit var tvPurchaseCaption: TextView
     private lateinit var tvBillingStatus: TextView
-    private lateinit var btnBuy100: TextView
-    private lateinit var btnRemoveAds: TextView
 
-    private val productDetails = mutableMapOf<String, ProductDetails>()
+    private var removeAdsDetails: ProductDetails? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_premium)
         FullScreenHelper.apply(this)
 
-        coinWallet = CoinWallet(this)
         adEntitlement = AdEntitlement(this)
-        tvCoinBalance = findViewById(R.id.tvCoinBalance)
+        btnContinue = findViewById(R.id.btnContinue)
+        tvPurchaseCaption = findViewById(R.id.tvPurchaseCaption)
         tvBillingStatus = findViewById(R.id.tvBillingStatus)
-        btnBuy100 = findViewById(R.id.btnBuy100)
-        btnRemoveAds = findViewById(R.id.btnRemoveAds)
 
-        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
-        btnBuy100.setOnClickListener { launchPurchase(PRODUCT_COIN_100) }
-        btnRemoveAds.setOnClickListener { launchPurchase(PRODUCT_REMOVE_ADS) }
+        findViewById<View>(R.id.btnClose).setOnClickListener { finish() }
+        btnContinue.setOnClickListener { launchRemoveAdsPurchase() }
 
         updateUi()
-        setPurchaseButtonsEnabled(false)
         setupBilling()
     }
 
@@ -71,7 +64,7 @@ class PremiumActivity : AppCompatActivity() {
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    queryProducts()
+                    queryProduct()
                     restorePurchases()
                 } else {
                     showBillingStatus(getString(R.string.billing_unavailable))
@@ -79,38 +72,30 @@ class PremiumActivity : AppCompatActivity() {
             }
 
             override fun onBillingServiceDisconnected() {
-                setPurchaseButtonsEnabled(false)
+                btnContinue.isEnabled = false
+                btnContinue.alpha = DISABLED_ALPHA
                 showBillingStatus(getString(R.string.billing_disconnected))
             }
         })
     }
 
-    private fun queryProducts() {
-        val products = listOf(PRODUCT_COIN_100, PRODUCT_REMOVE_ADS).map { productId ->
-            QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(productId)
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build()
-        }
+    private fun queryProduct() {
+        val product = QueryProductDetailsParams.Product.newBuilder()
+            .setProductId(PRODUCT_REMOVE_ADS)
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
         val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(products)
+            .setProductList(listOf(product))
             .build()
 
         billingClient.queryProductDetailsAsync(params) { billingResult, result ->
-            productDetails.clear()
-            result.productDetailsList.forEach { details ->
-                productDetails[details.productId] = details
+            removeAdsDetails = result.productDetailsList.firstOrNull()
+            updateUi()
+            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK ||
+                removeAdsDetails == null
+            ) {
+                showBillingStatus(getString(R.string.billing_products_unavailable))
             }
-            val ready = billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-                productDetails.keys.containsAll(listOf(PRODUCT_COIN_100, PRODUCT_REMOVE_ADS))
-            updatePurchaseLabels()
-            showBillingStatus(
-                if (ready) {
-                    getString(R.string.billing_ready)
-                } else {
-                    getString(R.string.billing_products_unavailable)
-                }
-            )
         }
     }
 
@@ -125,9 +110,9 @@ class PremiumActivity : AppCompatActivity() {
         }
     }
 
-    private fun launchPurchase(productId: String) {
-        if (productId == PRODUCT_REMOVE_ADS && adEntitlement.isAdFree()) return
-        val details = productDetails[productId]
+    private fun launchRemoveAdsPurchase() {
+        if (adEntitlement.isAdFree()) return
+        val details = removeAdsDetails
         if (details == null) {
             Toast.makeText(this, R.string.billing_unavailable, Toast.LENGTH_SHORT).show()
             return
@@ -153,27 +138,9 @@ class PremiumActivity : AppCompatActivity() {
             return
         }
 
-        when {
-            PRODUCT_COIN_100 in purchase.products -> grantCoins(purchase)
-            PRODUCT_REMOVE_ADS in purchase.products -> grantAdFree(purchase)
+        if (PRODUCT_REMOVE_ADS in purchase.products) {
+            grantAdFree(purchase)
         }
-    }
-
-    private fun grantCoins(purchase: Purchase) {
-        val granted = coinWallet.grantPurchase(purchase.purchaseToken, COIN_PACK_AMOUNT)
-        if (granted) {
-            updateUi()
-            Toast.makeText(
-                this,
-                getString(R.string.coins_added, COIN_PACK_AMOUNT),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        val consumeParams = ConsumeParams.newBuilder()
-            .setPurchaseToken(purchase.purchaseToken)
-            .build()
-        billingClient.consumeAsync(consumeParams) { _, _ -> }
     }
 
     private fun grantAdFree(purchase: Purchase) {
@@ -193,53 +160,34 @@ class PremiumActivity : AppCompatActivity() {
     }
 
     private fun updateUi() {
-        tvCoinBalance.text = getString(R.string.coin_balance, coinWallet.getBalance())
-        updatePurchaseLabels()
-    }
-
-    private fun updatePurchaseLabels() {
-        btnBuy100.text = productLabel(PRODUCT_COIN_100, R.string.coin_pack_100)
-        btnBuy100.isEnabled = productDetails.containsKey(PRODUCT_COIN_100)
-        btnBuy100.alpha = if (btnBuy100.isEnabled) 1f else 0.5f
-        if (adEntitlement.isAdFree()) {
-            btnRemoveAds.setText(R.string.ads_already_removed)
-            btnRemoveAds.isEnabled = false
-            btnRemoveAds.alpha = 0.55f
-        } else {
-            btnRemoveAds.text = productLabel(PRODUCT_REMOVE_ADS, R.string.remove_all_ads)
-            btnRemoveAds.isEnabled = productDetails.containsKey(PRODUCT_REMOVE_ADS)
-            btnRemoveAds.alpha = if (btnRemoveAds.isEnabled) 1f else 0.5f
-        }
-    }
-
-    private fun productLabel(productId: String, fallbackLabel: Int): String {
-        val price = productDetails[productId]
+        val price = removeAdsDetails
             ?.oneTimePurchaseOfferDetailsList
             ?.firstOrNull()
             ?.formattedPrice
-        return if (price.isNullOrBlank()) {
-            getString(fallbackLabel)
-        } else {
-            getString(R.string.iap_product_with_price, getString(fallbackLabel), price)
-        }
-    }
+            ?: getString(R.string.premium_price_fallback)
+        tvPurchaseCaption.text = getString(R.string.premium_purchase_caption, price)
 
-    private fun setPurchaseButtonsEnabled(enabled: Boolean) {
-        btnBuy100.isEnabled = enabled
-        btnBuy100.alpha = if (enabled) 1f else 0.5f
-        if (!adEntitlement.isAdFree()) {
-            btnRemoveAds.isEnabled = enabled
-            btnRemoveAds.alpha = if (enabled) 1f else 0.5f
+        if (adEntitlement.isAdFree()) {
+            btnContinue.setText(R.string.premium_already_active)
+            btnContinue.isEnabled = false
+            btnContinue.alpha = DISABLED_ALPHA
+            tvBillingStatus.visibility = View.GONE
+            return
         }
+
+        btnContinue.setText(R.string.premium_continue)
+        btnContinue.isEnabled = removeAdsDetails != null
+        btnContinue.alpha = if (btnContinue.isEnabled) 1f else DISABLED_ALPHA
     }
 
     private fun showBillingStatus(message: String) {
         tvBillingStatus.text = message
+        tvBillingStatus.visibility = View.VISIBLE
     }
 
     override fun onResume() {
         super.onResume()
-        if (::coinWallet.isInitialized) updateUi()
+        if (::adEntitlement.isInitialized) updateUi()
     }
 
     override fun onDestroy() {
@@ -248,8 +196,7 @@ class PremiumActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val PRODUCT_COIN_100 = "coin_100"
-        private const val PRODUCT_REMOVE_ADS = "remove_all_ads"
-        private const val COIN_PACK_AMOUNT = 100
+        private const val PRODUCT_REMOVE_ADS = "remove_ads"
+        private const val DISABLED_ALPHA = 0.55f
     }
 }

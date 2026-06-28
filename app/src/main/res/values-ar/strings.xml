@@ -48,16 +48,18 @@
     <string name="time_up">انتهى الوقت!</string>
     <string name="game_over_message">خسرت في المستوى %1$d. هل تريد إضافة وقت للمتابعة؟</string>
     <string name="rewarded_ad_icon">▶</string>
-    <string name="watch_ad_for_time">شاهد إعلانًا · أضف 15 ثانية</string>
+    <string name="watch_ad_for_time">شاهد إعلانًا · +15 عملة و15 ثانية</string>
     <string name="use_coins_for_time">%1$d عملة · أضف 20 ثانية (المتوفر %2$d)</string>
     <string name="use_coins_placeholder">15 عملة · أضف 20 ثانية</string>
     <string name="open_coin_store">فتح متجر العملات</string>
-    <string name="not_enough_coins">لا توجد عملات كافية. اشترِ المزيد من المتجر.</string>
+    <string name="not_enough_coins">لا توجد عملات كافية.</string>
+    <string name="buy_15_coins">شراء +15 عملة</string>
+    <string name="rewarded_ad_not_ready">الإعلان لا يزال قيد التحميل. حاول مرة أخرى بعد قليل.</string>
     <string name="ok_go_home">حسنًا · العودة للرئيسية</string>
 
     <string name="settings_title">الإعدادات</string>
-    <string name="unlock_premium">فتح متجر العملات</string>
-    <string name="premium_desc">اشترِ العملات أو أزل جميع الإعلانات</string>
+    <string name="unlock_premium">Premium</string>
+    <string name="premium_desc">أزل الإعلانات لتجربة لعب أكثر سلاسة</string>
     <string name="sound">الصوت</string>
     <string name="sound_desc">تفعيل أصوات اللعبة</string>
     <string name="rate_app">قيّم التطبيق</string>
@@ -67,11 +69,12 @@
     <string name="privacy_policy_sub">كيفية التعامل مع بياناتك</string>
     <string name="version_format">الإصدار %1$s</string>
 
-    <string name="premium_title">العملات</string>
-    <string name="premium_heading">افتح كل الميزات</string>
-    <string name="premium_subtitle">استمتع بالتجربة الكاملة بلا إعلانات</string>
-    <string name="premium_feature_1">إزالة جميع الإعلانات</string>
-    <string name="premium_feature_2">فتح وقت إضافي غير محدود</string>
+    <string name="premium_icon">Premium</string>
+    <string name="premium_title">Premium</string>
+    <string name="premium_heading">Premium</string>
+    <string name="premium_subtitle">قم بالترقية مرة واحدة لتجربة ألغاز أكثر سلاسة\nومن دون انقطاع.</string>
+    <string name="premium_feature_1">إزالة جميع إعلانات التطبيق</string>
+    <string name="premium_feature_2">تجربة تطبيق أكثر سلاسة</string>
     <string name="premium_feature_3">الحصول على تلميحات أكثر في كل مستوى</string>
     <string name="premium_feature_4">استخدام أيقونات وسمات حصرية</string>
     <string name="premium_feature_5">دعم المطور</string>
@@ -81,8 +84,14 @@
     <string name="coin_store_subtitle">احصل على المزيد من العملات أو أزل جميع الإعلانات نهائيًا.</string>
     <string name="coin_balance">%1$d عملة</string>
     <string name="coin_pack_100">100 عملة</string>
+    <string name="coin_pack_spin">+15 عملة</string>
     <string name="remove_all_ads">إزالة جميع الإعلانات</string>
     <string name="ads_already_removed">تمت إزالة جميع الإعلانات</string>
+    <string name="premium_continue">متابعة</string>
+    <string name="premium_already_active">Premium مفعّل</string>
+    <string name="premium_price_fallback">49.000đ</string>
+    <string name="premium_purchase_caption">شراء لمرة واحدة · %1$s</string>
+    <string name="premium_purchase_caption_preview">شراء لمرة واحدة · 49.000đ</string>
     <string name="iap_product_with_price">%1$s · %2$s</string>
     <string name="billing_connecting">جارٍ الاتصال بـ Google Play…</string>
     <string name="billing_ready">عمليات الشراء عبر Google Play جاهزة.</string>
@@ -99,7 +108,7 @@
     <string name="policy_section1_title">1. جمع البيانات</string>
     <string name="policy_section1_body">لا نجمع معلومات تعريف شخصية. تُحفظ بيانات النقاط محليًا على جهازك.</string>
     <string name="policy_section2_title">2. الإعلانات وعمليات الشراء</string>
-    <string name="policy_section2_body">قد يعرض التطبيق إعلانات من جهات خارجية ويتيح شراء العملات عبر Google Play Billing.</string>
+    <string name="policy_section2_body">قد يعرض التطبيق إعلانات من جهات خارجية ويتيح عملية شراء لمرة واحدة لإزالة الإعلانات عبر Google Play Billing.</string>
     <string name="policy_section3_title">3. التواصل</string>
     <string name="policy_section3_body">للأسئلة، تواصل معنا عبر:\nsupport@mysterynumbers.app</string>
     <string name="policy_updated">آخر تحديث: 31 مايو 2026</string>

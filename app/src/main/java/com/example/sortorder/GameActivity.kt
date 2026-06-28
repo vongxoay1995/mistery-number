@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Path
 import android.graphics.Typeface
@@ -26,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.hypot
 
@@ -45,6 +45,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var gameOverOverlay: FrameLayout
     private lateinit var winOverlay: FrameLayout
     private lateinit var adEntitlement: AdEntitlement
+    private lateinit var bannerAdHelper: BannerAdHelper
+    private lateinit var rewardedInterstitialAdHelper: RewardedInterstitialAdHelper
 
     private var currentLevel = 1
     private val maxLevel = 9
@@ -79,6 +81,20 @@ class GameActivity : AppCompatActivity() {
         initViews()
         coinWallet = CoinWallet(this)
         adEntitlement = AdEntitlement(this)
+        bannerAdHelper = BannerAdHelper(
+            this,
+            findViewById(R.id.gameAdBanner),
+            AdMobIds.GAME_BANNER,
+            adEntitlement
+        )
+        rewardedInterstitialAdHelper = RewardedInterstitialAdHelper(
+            this,
+            AdMobIds.REWARDED_INTERSTITIAL
+        )
+        bannerAdHelper.load()
+        if (!adEntitlement.isAdFree()) {
+            rewardedInterstitialAdHelper.load()
+        }
         loadBestScore()
         initSounds()
         setupListeners()
@@ -136,14 +152,14 @@ class GameActivity : AppCompatActivity() {
         btnHint.setOnClickListener { useHint() }
 
         findViewById<View>(R.id.btnWatchAd).setOnClickListener {
-            continueWithExtraTime(REWARDED_AD_SECONDS)
+            showRewardedAdForExtraTime()
         }
 
         findViewById<View>(R.id.btnUseCoins).setOnClickListener {
             if (coinWallet.spend(CoinWallet.EXTRA_TIME_COST)) {
                 continueWithExtraTime(COIN_EXTRA_TIME_SECONDS)
             } else {
-                startActivity(Intent(this, PremiumActivity::class.java))
+                showNotEnoughCoinsDialog()
             }
         }
 
@@ -656,6 +672,44 @@ class GameActivity : AppCompatActivity() {
         )
     }
 
+    private fun showRewardedAdForExtraTime() {
+        val watchAdButton = findViewById<View>(R.id.btnWatchAd)
+        watchAdButton.isEnabled = false
+        watchAdButton.alpha = 0.65f
+
+        rewardedInterstitialAdHelper.show(
+            onRewardEarned = {
+                coinWallet.add(REWARDED_AD_COIN_REWARD)
+                Toast.makeText(
+                    this,
+                    getString(R.string.coins_added, REWARDED_AD_COIN_REWARD),
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            onAdUnavailable = {
+                watchAdButton.isEnabled = true
+                watchAdButton.alpha = 1f
+                Toast.makeText(this, R.string.rewarded_ad_not_ready, Toast.LENGTH_SHORT).show()
+            },
+            onAdClosed = { rewardEarned ->
+                watchAdButton.isEnabled = true
+                watchAdButton.alpha = 1f
+                if (rewardEarned && gameOverOverlay.visibility == View.VISIBLE) {
+                    continueWithExtraTime(REWARDED_AD_SECONDS)
+                } else if (gameOverOverlay.visibility == View.VISIBLE) {
+                    updateGameOverActions()
+                }
+            }
+        )
+    }
+
+    private fun showNotEnoughCoinsDialog() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.not_enough_coins)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
     private fun playCorrectSound() {
         if (soundEnabled && correctSoundId != 0) {
             soundPool?.play(correctSoundId, 1f, 1f, 1, 0, 1f)
@@ -672,9 +726,21 @@ class GameActivity : AppCompatActivity() {
         super.onResume()
         soundEnabled = getSharedPreferences(SOUND_PREF_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_SOUND_ENABLED, true)
+        if (::bannerAdHelper.isInitialized) {
+            bannerAdHelper.resume()
+            bannerAdHelper.refreshVisibility()
+        }
+        if (::rewardedInterstitialAdHelper.isInitialized && !adEntitlement.isAdFree()) {
+            rewardedInterstitialAdHelper.load()
+        }
         if (::coinWallet.isInitialized && gameOverOverlay.visibility == View.VISIBLE) {
             updateGameOverActions()
         }
+    }
+
+    override fun onPause() {
+        if (::bannerAdHelper.isInitialized) bannerAdHelper.pause()
+        super.onPause()
     }
 
     private fun continueWithExtraTime(extraSeconds: Int) {
@@ -687,6 +753,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         timer?.cancel()
+        if (::bannerAdHelper.isInitialized) bannerAdHelper.destroy()
         soundPool?.release()
         soundPool = null
         super.onDestroy()
@@ -702,6 +769,7 @@ class GameActivity : AppCompatActivity() {
         private const val SWAP_TRAVEL_DURATION_MS = 420L
         private const val SWAP_LANDING_DURATION_MS = 220L
         private const val REWARDED_AD_SECONDS = 15
+        private const val REWARDED_AD_COIN_REWARD = 15
         private const val COIN_EXTRA_TIME_SECONDS = 20
     }
 }

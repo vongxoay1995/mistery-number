@@ -11,6 +11,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class SplashActivity : AppCompatActivity() {
 
+    private val handler = Handler(Looper.getMainLooper())
+    private var hasNavigated = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -26,10 +29,31 @@ class SplashActivity : AppCompatActivity() {
         }
         loadingDot.startAnimation(pulseAnim)
 
-        // Navigate to main after 2 seconds
-        Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        handler.postDelayed({
+            showAppOpenAdThenNavigate()
         }, 2000)
+    }
+
+    private fun showAppOpenAdThenNavigate() {
+        val sortOrderApplication = application as? SortOrderApplication
+        if (sortOrderApplication == null) {
+            navigateToMain()
+        } else {
+            sortOrderApplication.showAppOpenAdIfAvailable(this) {
+                navigateToMain()
+            }
+        }
+    }
+
+    private fun navigateToMain() {
+        if (hasNavigated) return
+        hasNavigated = true
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 }
