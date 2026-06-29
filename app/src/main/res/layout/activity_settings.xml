@@ -98,12 +98,11 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="›"
-                    android:textColor="@color/white"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/white" />
             </LinearLayout>
 
             <!-- Sound -->
@@ -197,12 +196,11 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="›"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <!-- Privacy Policy -->
@@ -246,12 +244,11 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="›"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <!-- Version -->

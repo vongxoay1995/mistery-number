@@ -85,7 +85,7 @@
     <string name="ads_already_removed">All ads removed</string>
     <string name="premium_continue">Continue</string>
     <string name="premium_already_active">Premium active</string>
-    <string name="premium_price_fallback">49.000đ</string>
+    <string name="premium_price_fallback">Loading…</string>
     <string name="premium_purchase_caption">ONE-TIME PURCHASE · %1$s</string>
     <string name="premium_purchase_caption_preview">ONE-TIME PURCHASE · 49.000đ</string>
     <string name="iap_product_with_price">%1$s · %2$s</string>
@@ -106,7 +106,7 @@
     <string name="policy_section2_title">2. Advertising and purchases</string>
     <string name="policy_section2_body">The app may show third-party ads and offer a one-time remove-ads purchase through Google Play Billing.</string>
     <string name="policy_section3_title">3. Contact</string>
-    <string name="policy_section3_body">For questions, contact:\nsupport@mysterynumbers.app</string>
+    <string name="policy_section3_body">For questions, contact:\nphamthanhtan.dev@gmail.com</string>
     <string name="policy_updated">Last updated: May 31, 2026</string>
 
     <string name="ad_badge">AD</string>

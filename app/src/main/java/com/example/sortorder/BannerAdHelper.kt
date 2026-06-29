@@ -43,13 +43,18 @@ class BannerAdHelper(
                         adView = null
                         container.removeAllViews()
                         container.visibility = View.GONE
+                        
+                        container.postDelayed({
+                            if (!activity.isFinishing && !activity.isDestroyed) {
+                                load()
+                            }
+                        }, 5000)
                     }
                 }
             }
 
             adView = bannerView
             container.removeAllViews()
-            container.visibility = View.INVISIBLE
             container.addView(
                 bannerView,
                 FrameLayout.LayoutParams(

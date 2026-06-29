@@ -5,18 +5,17 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
-import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import com.example.sortorder.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private lateinit var bannerAdHelper: BannerAdHelper
 
@@ -44,26 +43,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun inflateBinding(layoutInflater: LayoutInflater): ActivityMainBinding {
+        return ActivityMainBinding.inflate(layoutInflater)
+    }
+
     @SuppressLint("ClickableViewAccessibility")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        FullScreenHelper.apply(this)
-
-        val tvScore = findViewById<TextView>(R.id.tvScore)
-        val tvCoins = findViewById<TextView>(R.id.tvCoins)
-        val btnSettings = findViewById<View>(R.id.btnSettings)
-        val btnPlay = findViewById<FrameLayout>(R.id.btnPlay)
-        val rippleWave1 = findViewById<View>(R.id.rippleWave1)
-        val rippleWave2 = findViewById<View>(R.id.rippleWave2)
-        val rippleWave3 = findViewById<View>(R.id.rippleWave3)
-        val playGlow = findViewById<View>(R.id.playGlow)
-        val adBanner = findViewById<FrameLayout>(R.id.adBanner)
-
+    override fun setupView() {
         // Load and display score
-        updateScore(tvScore)
-        updateCoins(tvCoins)
-        bannerAdHelper = BannerAdHelper(this, adBanner, AdMobIds.MAIN_BANNER)
+        updateScore(binding.tvScore)
+        updateCoins(binding.tvCoins)
+        bannerAdHelper = BannerAdHelper(this, binding.adBanner, AdMobIds.MAIN_BANNER)
         bannerAdHelper.load()
 
         // =============================================
@@ -93,19 +82,19 @@ class MainActivity : AppCompatActivity() {
             return AnimatorSet().apply { playTogether(scaleX, scaleY, alpha) }
         }
 
-        val ripple1 = createRippleAnimator(rippleWave1)
-        val ripple2 = createRippleAnimator(rippleWave2)
-        val ripple3 = createRippleAnimator(rippleWave3)
+        val ripple1 = createRippleAnimator(binding.rippleWave1)
+        val ripple2 = createRippleAnimator(binding.rippleWave2)
+        val ripple3 = createRippleAnimator(binding.rippleWave3)
 
         // Start ripples with stagger for sonar effect
         ripple1.start()
-        rippleWave2.postDelayed({ ripple2.start() }, stagger)
-        rippleWave3.postDelayed({ ripple3.start() }, stagger * 2)
+        binding.rippleWave2.postDelayed({ ripple2.start() }, stagger)
+        binding.rippleWave3.postDelayed({ ripple3.start() }, stagger * 2)
 
         // =============================================
         // 2. GLOW BREATHING — subtle alpha pulse
         // =============================================
-        ObjectAnimator.ofFloat(playGlow, "alpha", 0.3f, 0.6f).apply {
+        ObjectAnimator.ofFloat(binding.playGlow, "alpha", 0.3f, 0.6f).apply {
             duration = 1500
             repeatMode = ObjectAnimator.REVERSE
             repeatCount = ObjectAnimator.INFINITE
@@ -116,13 +105,13 @@ class MainActivity : AppCompatActivity() {
         // =============================================
         // 3. BUTTON BREATHING — gentle scale pulse (1.0 ↔ 1.05)
         // =============================================
-        val breatheScaleX = ObjectAnimator.ofFloat(btnPlay, "scaleX", 1f, 1.05f).apply {
+        val breatheScaleX = ObjectAnimator.ofFloat(binding.btnPlay, "scaleX", 1f, 1.05f).apply {
             duration = 1500
             repeatMode = ObjectAnimator.REVERSE
             repeatCount = ObjectAnimator.INFINITE
             interpolator = AccelerateDecelerateInterpolator()
         }
-        val breatheScaleY = ObjectAnimator.ofFloat(btnPlay, "scaleY", 1f, 1.05f).apply {
+        val breatheScaleY = ObjectAnimator.ofFloat(binding.btnPlay, "scaleY", 1f, 1.05f).apply {
             duration = 1500
             repeatMode = ObjectAnimator.REVERSE
             repeatCount = ObjectAnimator.INFINITE
@@ -139,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         //    Release → spring back to 1.0 with overshoot (300ms)
         //              then restart breathing animation
         // =============================================
-        btnPlay.setOnTouchListener { v, event ->
+        binding.btnPlay.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     // Cancel breathing & shrink
@@ -174,23 +163,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Tap play button to start game
-        btnPlay.setOnClickListener {
+        binding.btnPlay.setOnClickListener {
+            startActivity(Intent(this, GameActivity::class.java))
+        }
+        
+        binding.tvTapToPlay.setOnClickListener {
             startActivity(Intent(this, GameActivity::class.java))
         }
 
         // Settings button
-        btnSettings.setOnClickListener {
+        binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
-
     }
 
     override fun onResume() {
         super.onResume()
-        val tvScore = findViewById<TextView>(R.id.tvScore)
-        val tvCoins = findViewById<TextView>(R.id.tvCoins)
-        updateScore(tvScore)
-        updateCoins(tvCoins)
+        updateScore(binding.tvScore)
+        updateCoins(binding.tvCoins)
+        
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val hasSavedGame = prefs.getBoolean("saved_game_valid", false)
+        binding.tvTapToPlay.text = if (hasSavedGame) "Chơi tiếp" else getString(R.string.tap_to_play)
+
         if (::bannerAdHelper.isInitialized) {
             bannerAdHelper.resume()
             bannerAdHelper.refreshVisibility()

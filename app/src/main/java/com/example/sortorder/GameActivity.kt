@@ -29,7 +29,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.hypot
 
-class GameActivity : AppCompatActivity() {
+import com.example.sortorder.databinding.ActivityGameBinding
+
+class GameActivity : BaseActivity<ActivityGameBinding>() {
 
     private lateinit var gameRoot: FrameLayout
     private lateinit var tvLevel: TextView
@@ -43,7 +45,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var boxContainer: FlowLayout
     private lateinit var gameOverOverlay: FrameLayout
-    private lateinit var winOverlay: FrameLayout
+    private lateinit var overlayExit: FrameLayout
+    private lateinit var overlayPause: FrameLayout
     private lateinit var adEntitlement: AdEntitlement
     private lateinit var bannerAdHelper: BannerAdHelper
     private lateinit var rewardedInterstitialAdHelper: RewardedInterstitialAdHelper
@@ -56,6 +59,9 @@ class GameActivity : AppCompatActivity() {
     private var timerDuration = 35
     private var selectedBoxIndex: Int? = null
     private var isLevelFinished = false
+    private var isTimerDelaying = false
+    private var isGamePausedManually = false
+    private var isFirstLaunch = true
     private var checksUsed = 0
     private var hintsRemaining = 1
     private var hintsUsed = 0
@@ -73,17 +79,17 @@ class GameActivity : AppCompatActivity() {
     private val revealedHintIndices = mutableSetOf<Int>()
     private lateinit var coinWallet: CoinWallet
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
-        FullScreenHelper.apply(this)
+    override fun inflateBinding(layoutInflater: android.view.LayoutInflater): ActivityGameBinding {
+        return ActivityGameBinding.inflate(layoutInflater)
+    }
 
+    override fun setupView() {
         initViews()
         coinWallet = CoinWallet(this)
         adEntitlement = AdEntitlement(this)
         bannerAdHelper = BannerAdHelper(
             this,
-            findViewById(R.id.gameAdBanner),
+            binding.gameAdBanner,
             AdMobIds.GAME_BANNER,
             adEntitlement
         )
@@ -98,25 +104,32 @@ class GameActivity : AppCompatActivity() {
         loadBestScore()
         initSounds()
         setupListeners()
-        startLevel()
+        
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_SAVED_GAME_VALID, false)) {
+            restoreGameState()
+        } else {
+            startLevel()
+        }
     }
 
     private fun initViews() {
-        gameRoot = findViewById(R.id.gameRoot)
-        tvLevel = findViewById(R.id.tvLevel)
-        tvScore = findViewById(R.id.tvScore)
-        tvBestScore = findViewById(R.id.tvBestScore)
-        tvTimer = findViewById(R.id.tvTimer)
-        tvFeedback = findViewById(R.id.tvFeedback)
-        tvCombo = findViewById(R.id.tvCombo)
-        tvRule = findViewById(R.id.tvRule)
-        btnHint = findViewById(R.id.btnHint)
-        progressBar = findViewById(R.id.progressBar)
-        boxContainer = findViewById(R.id.boxContainer)
+        gameRoot = binding.gameRoot
+        tvLevel = binding.tvLevel
+        tvScore = binding.tvScore
+        tvBestScore = binding.tvBestScore
+        tvTimer = binding.tvTimer
+        tvFeedback = binding.tvFeedback
+        tvCombo = binding.tvCombo
+        tvRule = binding.tvRule
+        btnHint = binding.btnHint
+        progressBar = binding.progressBar
+        boxContainer = binding.boxContainer
         boxContainer.clipChildren = false
         boxContainer.clipToPadding = false
-        gameOverOverlay = findViewById(R.id.gameOverOverlay)
-        winOverlay = findViewById(R.id.winOverlay)
+        gameOverOverlay = binding.overlayGameOver.root as FrameLayout
+        overlayExit = binding.overlayExit.root as FrameLayout
+        overlayPause = binding.overlayPause.root as FrameLayout
     }
 
     private fun loadBestScore() {
@@ -146,16 +159,21 @@ class GameActivity : AppCompatActivity() {
         wrongSoundId = soundPool?.load(this, R.raw.wrong_anwser, 1) ?: 0
     }
 
-    private fun setupListeners() {
-        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
-        findViewById<View>(R.id.btnCheck).setOnClickListener { checkOrder() }
-        btnHint.setOnClickListener { useHint() }
+    override fun setupListeners() {
+        binding.btnBack.setOnClickListener { handleBackPress() }
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBackPress()
+            }
+        })
+        binding.btnCheck.setOnClickListener { checkOrder() }
+        binding.btnHint.setOnClickListener { useHint() }
 
-        findViewById<View>(R.id.btnWatchAd).setOnClickListener {
+        binding.overlayGameOver.btnWatchAd.setOnClickListener {
             showRewardedAdForExtraTime()
         }
 
-        findViewById<View>(R.id.btnUseCoins).setOnClickListener {
+        binding.overlayGameOver.btnUseCoins.setOnClickListener {
             if (coinWallet.spend(CoinWallet.EXTRA_TIME_COST)) {
                 continueWithExtraTime(COIN_EXTRA_TIME_SECONDS)
             } else {
@@ -163,17 +181,41 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<View>(R.id.btnGoHome).setOnClickListener { finish() }
+        binding.overlayGameOver.btnGoHome.setOnClickListener { 
+            clearGameState()
+            finish() 
+        }
 
-        findViewById<View>(R.id.btnNextLevel).setOnClickListener {
-            winOverlay.visibility = View.GONE
-            currentLevel++
-            if (currentLevel > maxLevel) {
-                Toast.makeText(this, R.string.all_levels_completed, Toast.LENGTH_LONG).show()
-                finish()
-            } else {
-                startLevel()
-            }
+        binding.overlayExit.btnCancelExit.setOnClickListener {
+            overlayExit.visibility = View.GONE
+            isGamePausedManually = false
+            if (!isTimerDelaying) resumeTimer()
+        }
+
+        binding.overlayExit.btnConfirmExit.setOnClickListener {
+            finish()
+        }
+
+        binding.overlayPause.btnResume.setOnClickListener {
+            overlayPause.visibility = View.GONE
+            isGamePausedManually = false
+            if (!isTimerDelaying) resumeTimer()
+        }
+    }
+
+    private fun handleBackPress() {
+        if (gameOverOverlay.visibility == View.VISIBLE) {
+            clearGameState()
+            finish()
+            return
+        }
+        
+        if (timeLeft > 0 && !isLevelFinished) {
+            isGamePausedManually = true
+            pauseTimer()
+            overlayExit.visibility = View.VISIBLE
+        } else {
+            finish()
         }
     }
 
@@ -217,7 +259,15 @@ class GameActivity : AppCompatActivity() {
         progressBar.progress = timeLeft
         createBoxes()
         updateTimerDisplay()
-        startTimer()
+        
+        isTimerDelaying = true
+        pauseTimer()
+        boxContainer.postDelayed({
+            isTimerDelaying = false
+            if (!isGamePausedManually && !isFinishing) {
+                resumeTimer()
+            }
+        }, 1000)
     }
 
     private fun createBoxes() {
@@ -565,8 +615,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun onWin() {
-        timer?.cancel()
-        isLevelFinished = true
+        pauseTimer()
         val stars = calculateStars()
         combo++
         val levelScore = timeLeft * 10 + currentLevel * 50 + combo * 25 + stars * 100
@@ -575,27 +624,16 @@ class GameActivity : AppCompatActivity() {
         updateCombo()
         saveBestScore()
         tvBestScore.text = bestScore.toString()
-        findViewById<TextView>(R.id.tvWinStars).text = "★".repeat(stars) +
-            "☆".repeat(3 - stars)
-        val winStats = getString(
-            R.string.win_stats,
-            levelScore,
-            checksUsed,
-            combo
-        )
-        findViewById<TextView>(R.id.tvWinStats).text = winStats
 
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val previousHighest = prefs.getInt(KEY_HIGHEST_LEVEL, 0)
-        if (currentLevel > previousHighest) {
-            prefs.edit().putInt(KEY_HIGHEST_LEVEL, currentLevel).apply()
+        currentLevel++
+        if (currentLevel > maxLevel) {
+            clearGameState()
+            Toast.makeText(this, R.string.all_levels_completed, Toast.LENGTH_LONG).show()
+            finish()
+        } else {
+            startLevel()
         }
-
-        boxContainer.postDelayed({
-            winOverlay.alpha = 0f
-            winOverlay.visibility = View.VISIBLE
-            winOverlay.animate().alpha(1f).setDuration(300).start()
-        }, 500)
     }
 
     private fun calculateStars(): Int {
@@ -605,6 +643,16 @@ class GameActivity : AppCompatActivity() {
             ratio >= 0.25f && checksUsed <= 3 -> 2
             else -> 1
         }
+    }
+
+    private fun pauseTimer() {
+        timer?.cancel()
+        timer = null
+    }
+
+    private fun resumeTimer() {
+        if (timeLeft <= 0 || isLevelFinished || isGamePausedManually || isTimerDelaying) return
+        startTimer()
     }
 
     private fun startTimer() {
@@ -647,14 +695,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun showGameOver() {
-        timer?.cancel()
+        pauseTimer()
+        isLevelFinished = true
         combo = 0
         hintsRemaining = 0
         updateCombo()
         updateHintButton()
         clearSelection()
         saveBestScore()
-        findViewById<TextView>(R.id.tvGameOverMsg).text =
+        binding.overlayGameOver.tvGameOverMsg.text =
             getString(R.string.game_over_message, currentLevel)
         gameOverOverlay.alpha = 0f
         gameOverOverlay.visibility = View.VISIBLE
@@ -663,9 +712,9 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun updateGameOverActions() {
-        findViewById<View>(R.id.btnWatchAd).visibility =
+        binding.overlayGameOver.btnWatchAd.visibility =
             if (adEntitlement.isAdFree()) View.GONE else View.VISIBLE
-        findViewById<TextView>(R.id.tvExtraTimeCoinAction).text = getString(
+        binding.overlayGameOver.tvExtraTimeCoinAction.text = getString(
             R.string.use_coins_for_time,
             CoinWallet.EXTRA_TIME_COST,
             coinWallet.getBalance()
@@ -673,18 +722,13 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun showRewardedAdForExtraTime() {
-        val watchAdButton = findViewById<View>(R.id.btnWatchAd)
+        val watchAdButton = binding.overlayGameOver.btnWatchAd
         watchAdButton.isEnabled = false
         watchAdButton.alpha = 0.65f
 
         rewardedInterstitialAdHelper.show(
             onRewardEarned = {
-                coinWallet.add(REWARDED_AD_COIN_REWARD)
-                Toast.makeText(
-                    this,
-                    getString(R.string.coins_added, REWARDED_AD_COIN_REWARD),
-                    Toast.LENGTH_SHORT
-                ).show()
+                // No coins added for rewarded ad in this version
             },
             onAdUnavailable = {
                 watchAdButton.isEnabled = true
@@ -736,11 +780,107 @@ class GameActivity : AppCompatActivity() {
         if (::coinWallet.isInitialized && gameOverOverlay.visibility == View.VISIBLE) {
             updateGameOverActions()
         }
+        
+        if (isFirstLaunch) {
+            isFirstLaunch = false
+        } else {
+            if (!isGamePausedManually && !isTimerDelaying) {
+                if (timeLeft > 0 && !isLevelFinished && gameOverOverlay.visibility != View.VISIBLE) {
+                    isGamePausedManually = true
+                    overlayPause.visibility = View.VISIBLE
+                } else {
+                    resumeTimer()
+                }
+            }
+        }
     }
 
     override fun onPause() {
+        pauseTimer()
+        saveGameState()
         if (::bannerAdHelper.isInitialized) bannerAdHelper.pause()
         super.onPause()
+    }
+
+    private fun saveGameState() {
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        
+        if (timeLeft > 0 && !isLevelFinished && gameOverOverlay.visibility != View.VISIBLE) {
+            editor.putBoolean(KEY_SAVED_GAME_VALID, true)
+            editor.putInt(KEY_SAVED_LEVEL, currentLevel)
+            editor.putInt(KEY_SAVED_SCORE, score)
+            editor.putInt(KEY_SAVED_TIME, timeLeft)
+            editor.putInt(KEY_SAVED_TIMER_DURATION, timerDuration)
+            editor.putInt(KEY_SAVED_CHECKS, checksUsed)
+            editor.putInt(KEY_SAVED_HINTS_REMAINING, hintsRemaining)
+            editor.putInt(KEY_SAVED_HINTS_USED, hintsUsed)
+            editor.putInt(KEY_SAVED_COMBO, combo)
+            editor.putString(KEY_SAVED_TARGETS, targetNumbers.joinToString(","))
+            editor.putString(KEY_SAVED_CURRENTS, currentNumbers.joinToString(","))
+            editor.putString(KEY_SAVED_REVEALED, revealedHintIndices.joinToString(","))
+        } else {
+            editor.putBoolean(KEY_SAVED_GAME_VALID, false)
+        }
+        editor.apply()
+    }
+
+    private fun restoreGameState() {
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        currentLevel = prefs.getInt(KEY_SAVED_LEVEL, 1)
+        score = prefs.getInt(KEY_SAVED_SCORE, 0)
+        combo = prefs.getInt(KEY_SAVED_COMBO, 0)
+        timeLeft = prefs.getInt(KEY_SAVED_TIME, -1)
+        
+        if (timeLeft == -1) {
+            startLevel()
+            return
+        }
+
+        timerDuration = prefs.getInt(KEY_SAVED_TIMER_DURATION, 35)
+        checksUsed = prefs.getInt(KEY_SAVED_CHECKS, 0)
+        hintsRemaining = prefs.getInt(KEY_SAVED_HINTS_REMAINING, 0)
+        hintsUsed = prefs.getInt(KEY_SAVED_HINTS_USED, 0)
+        
+        targetNumbers = prefs.getString(KEY_SAVED_TARGETS, "")?.split(",")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
+        currentNumbers = prefs.getString(KEY_SAVED_CURRENTS, "")?.split(",")?.mapNotNull { it.toIntOrNull() }?.toMutableList() ?: mutableListOf()
+        val revealed = prefs.getString(KEY_SAVED_REVEALED, "")?.split(",")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
+        revealedHintIndices.clear()
+        revealedHintIndices.addAll(revealed)
+        
+        selectedBoxIndex = null
+        isLevelFinished = false
+        
+        tvLevel.text = getString(R.string.level_format, currentLevel)
+        tvScore.text = score.toString()
+        tvBestScore.text = bestScore.toString()
+        tvFeedback.text = ""
+        updateCombo()
+        updateHintButton()
+        tvRule.text = if (usesAdjacentSwapRule()) getString(R.string.rule_adjacent) else ""
+        
+        createBoxes()
+        revealedHintIndices.forEach { resetBoxBackground(it) }
+        
+        updateTimerDisplay()
+        
+        if (timeLeft > 0) {
+            isTimerDelaying = true
+            pauseTimer()
+            boxContainer.postDelayed({
+                isTimerDelaying = false
+                if (!isGamePausedManually && !isFinishing) {
+                    resumeTimer()
+                }
+            }, 1000)
+        }
+    }
+
+    private fun clearGameState() {
+        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_SAVED_GAME_VALID, false)
+            .apply()
     }
 
     private fun continueWithExtraTime(extraSeconds: Int) {
@@ -766,10 +906,25 @@ class GameActivity : AppCompatActivity() {
         private const val NUMBER_TEXT_TAG = "numberText"
         private const val SOUND_PREF_NAME = "game_prefs"
         private const val KEY_SOUND_ENABLED = "sound_enabled"
+
+        // Saved Game State Keys
+        private const val KEY_SAVED_GAME_VALID = "saved_game_valid"
+        private const val KEY_SAVED_LEVEL = "saved_level"
+        private const val KEY_SAVED_SCORE = "saved_score"
+        private const val KEY_SAVED_TIME = "saved_time"
+        private const val KEY_SAVED_TIMER_DURATION = "saved_timer_duration"
+        private const val KEY_SAVED_CHECKS = "saved_checks"
+        private const val KEY_SAVED_HINTS_REMAINING = "saved_hints_remaining"
+        private const val KEY_SAVED_HINTS_USED = "saved_hints_used"
+        private const val KEY_SAVED_COMBO = "saved_combo"
+        private const val KEY_SAVED_TARGETS = "saved_targets"
+        private const val KEY_SAVED_CURRENTS = "saved_currents"
+        private const val KEY_SAVED_REVEALED = "saved_revealed"
+        private const val KEY_SAVED_IS_WIN = "saved_is_win"
+        private const val KEY_SAVED_IS_GAME_OVER = "saved_is_game_over"
         private const val SWAP_TRAVEL_DURATION_MS = 420L
         private const val SWAP_LANDING_DURATION_MS = 220L
-        private const val REWARDED_AD_SECONDS = 15
-        private const val REWARDED_AD_COIN_REWARD = 15
+        private const val REWARDED_AD_SECONDS = 10
         private const val COIN_EXTRA_TIME_SECONDS = 20
     }
 }

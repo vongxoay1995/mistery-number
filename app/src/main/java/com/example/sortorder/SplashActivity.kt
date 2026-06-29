@@ -4,30 +4,34 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.sortorder.databinding.ActivitySplashBinding
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var hasNavigated = false
 
+    override fun inflateBinding(layoutInflater: LayoutInflater): ActivitySplashBinding {
+        return ActivitySplashBinding.inflate(layoutInflater)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
-        FullScreenHelper.apply(this)
+    }
 
+    override fun setupView() {
         // Pulse animation for loading dot
-        val loadingDot = findViewById<android.view.View>(R.id.loadingDot)
         val pulseAnim = AlphaAnimation(1f, 0.2f).apply {
             duration = 800
             repeatMode = Animation.REVERSE
             repeatCount = Animation.INFINITE
         }
-        loadingDot.startAnimation(pulseAnim)
+        binding.loadingDot.startAnimation(pulseAnim)
 
         handler.postDelayed({
             showAppOpenAdThenNavigate()

@@ -192,7 +192,7 @@
         android:focusable="true"
         android:gravity="center"
         android:text="@string/premium_continue"
-        android:textColor="#061322"
+        android:textColor="#ffffff"
         android:textSize="18sp"
         android:textStyle="bold" />
 

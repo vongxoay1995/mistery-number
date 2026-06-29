@@ -35,6 +35,6 @@ class SortOrderApplication : Application() {
     companion object {
         private const val PREF_NAME = "ad_session_prefs"
         private const val KEY_SESSION_NUMBER = "session_number"
-        private const val FIRST_APP_OPEN_AD_SESSION = 2
+        private const val FIRST_APP_OPEN_AD_SESSION = 1
     }
 }

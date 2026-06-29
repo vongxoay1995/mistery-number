@@ -231,8 +231,5 @@
         android:layout_height="@dimen/_50sdp"
         android:layout_gravity="bottom"
         android:layout_marginBottom="16dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/bg_banner_container"
-        android:visibility="invisible" />
+        android:background="@drawable/bg_banner_container" />
 </FrameLayout>

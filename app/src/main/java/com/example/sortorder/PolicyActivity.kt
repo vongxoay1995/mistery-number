@@ -1,16 +1,15 @@
 package com.example.sortorder
 
-import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import com.example.sortorder.databinding.ActivityPolicyBinding
 
-class PolicyActivity : AppCompatActivity() {
+class PolicyActivity : BaseActivity<ActivityPolicyBinding>() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_policy)
-        FullScreenHelper.apply(this)
+    override fun inflateBinding(layoutInflater: LayoutInflater): ActivityPolicyBinding {
+        return ActivityPolicyBinding.inflate(layoutInflater)
+    }
 
-        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+    override fun setupListeners() {
+        binding.btnBack.setOnClickListener { finish() }
     }
 }

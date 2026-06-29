@@ -292,16 +292,16 @@
             android:id="@+id/gameAdBanner"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_banner_container"
-            android:visibility="invisible" />
+            android:background="@drawable/bg_banner_container" />
     </LinearLayout>
 
     <!-- Game Over Overlay -->
-    <include layout="@layout/overlay_game_over" />
+    <include android:id="@+id/overlayGameOver" layout="@layout/overlay_game_over" />
 
-    <!-- Win Overlay -->
-    <include layout="@layout/overlay_win" />
+    <!-- Pause Overlay -->
+    <include android:id="@+id/overlayPause" layout="@layout/overlay_pause" />
+
+    <!-- Exit Overlay -->
+    <include android:id="@+id/overlayExit" layout="@layout/overlay_exit" />
 </FrameLayout>

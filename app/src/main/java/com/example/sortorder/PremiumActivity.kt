@@ -16,31 +16,28 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 
-class PremiumActivity : AppCompatActivity() {
+import com.example.sortorder.databinding.ActivityPremiumBinding
+
+class PremiumActivity : BaseActivity<ActivityPremiumBinding>() {
 
     private lateinit var billingClient: BillingClient
     private lateinit var adEntitlement: AdEntitlement
-    private lateinit var btnContinue: TextView
-    private lateinit var tvPurchaseCaption: TextView
-    private lateinit var tvBillingStatus: TextView
 
     private var removeAdsDetails: ProductDetails? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_premium)
-        FullScreenHelper.apply(this)
+    override fun inflateBinding(layoutInflater: android.view.LayoutInflater): ActivityPremiumBinding {
+        return ActivityPremiumBinding.inflate(layoutInflater)
+    }
 
+    override fun setupView() {
         adEntitlement = AdEntitlement(this)
-        btnContinue = findViewById(R.id.btnContinue)
-        tvPurchaseCaption = findViewById(R.id.tvPurchaseCaption)
-        tvBillingStatus = findViewById(R.id.tvBillingStatus)
-
-        findViewById<View>(R.id.btnClose).setOnClickListener { finish() }
-        btnContinue.setOnClickListener { launchRemoveAdsPurchase() }
-
         updateUi()
         setupBilling()
+    }
+
+    override fun setupListeners() {
+        binding.btnClose.setOnClickListener { finish() }
+        binding.btnContinue.setOnClickListener { launchRemoveAdsPurchase() }
     }
 
     private fun setupBilling() {
@@ -72,8 +69,8 @@ class PremiumActivity : AppCompatActivity() {
             }
 
             override fun onBillingServiceDisconnected() {
-                btnContinue.isEnabled = false
-                btnContinue.alpha = DISABLED_ALPHA
+                binding.btnContinue.isEnabled = false
+                binding.btnContinue.alpha = DISABLED_ALPHA
                 showBillingStatus(getString(R.string.billing_disconnected))
             }
         })
@@ -165,24 +162,24 @@ class PremiumActivity : AppCompatActivity() {
             ?.firstOrNull()
             ?.formattedPrice
             ?: getString(R.string.premium_price_fallback)
-        tvPurchaseCaption.text = getString(R.string.premium_purchase_caption, price)
+        binding.tvPurchaseCaption.text = getString(R.string.premium_purchase_caption, price)
 
         if (adEntitlement.isAdFree()) {
-            btnContinue.setText(R.string.premium_already_active)
-            btnContinue.isEnabled = false
-            btnContinue.alpha = DISABLED_ALPHA
-            tvBillingStatus.visibility = View.GONE
+            binding.btnContinue.setText(R.string.premium_already_active)
+            binding.btnContinue.isEnabled = false
+            binding.btnContinue.alpha = DISABLED_ALPHA
+            binding.tvBillingStatus.visibility = View.GONE
             return
         }
 
-        btnContinue.setText(R.string.premium_continue)
-        btnContinue.isEnabled = removeAdsDetails != null
-        btnContinue.alpha = if (btnContinue.isEnabled) 1f else DISABLED_ALPHA
+        binding.btnContinue.setText(R.string.premium_continue)
+        binding.btnContinue.isEnabled = removeAdsDetails != null
+        binding.btnContinue.alpha = if (binding.btnContinue.isEnabled) 1f else DISABLED_ALPHA
     }
 
     private fun showBillingStatus(message: String) {
-        tvBillingStatus.text = message
-        tvBillingStatus.visibility = View.VISIBLE
+        binding.tvBillingStatus.text = message
+        binding.tvBillingStatus.visibility = View.VISIBLE
     }
 
     override fun onResume() {
