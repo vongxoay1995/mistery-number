@@ -108,6 +108,8 @@
     <string name="policy_section3_title">3. Contact</string>
     <string name="policy_section3_body">For questions, contact:\nphamthanhtan.dev@gmail.com</string>
     <string name="policy_updated">Last updated: May 31, 2026</string>
+    <string name="privacy_options">Privacy options</string>
+    <string name="privacy_options_sub">Manage ads consent choices</string>
 
     <string name="ad_badge">AD</string>
     <string name="ad_placeholder">Your ad goes here</string>

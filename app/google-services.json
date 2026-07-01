@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "222813931042",
+    "project_id": "swap-num",
+    "storage_bucket": "swap-num.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222813931042:android:5381953c17490527ba6c7b",
+        "android_client_info": {
+          "package_name": "com.swapnumber.puzzle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8HTNNJ0-r_i-Fcf_oyiSlBsCgqs6DTh0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

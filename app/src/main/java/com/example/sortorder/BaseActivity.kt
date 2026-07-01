@@ -22,6 +22,16 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         setupObservers()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val screenName = getAnalyticsScreenName()
+        AnalyticsTracker.logScreen(
+            screenName = screenName.replaceFirstChar { it.uppercase() },
+            screenClass = javaClass.simpleName
+        )
+        AnalyticsTracker.logScreenShow(screenName)
+    }
+
     open fun setupView() {}
     open fun setupListeners() {}
     open fun setupObservers() {}
@@ -31,5 +41,12 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         if (hasFocus) {
             FullScreenHelper.apply(this)
         }
+    }
+
+    private fun getAnalyticsScreenName(): String {
+        return javaClass.simpleName
+            .removeSuffix("Activity")
+            .replace(Regex("([a-z])([A-Z])"), "$1_$2")
+            .lowercase()
     }
 }

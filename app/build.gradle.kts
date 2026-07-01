@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
 android {
     namespace = "com.example.sortorder"
     compileSdk = 35
@@ -13,8 +18,8 @@ android {
         applicationId = "com.swapnumber.puzzle"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,6 +51,10 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.android.billingclient:billing:9.0.0")
     implementation("com.google.android.gms:play-services-ads:24.8.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.user.messaging.platform)
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
     implementation("androidx.core:core-splashscreen:1.0.1")
 

@@ -10,6 +10,9 @@ class PolicyActivity : BaseActivity<ActivityPolicyBinding>() {
     }
 
     override fun setupListeners() {
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener {
+            AnalyticsTracker.logButton("policy", "back")
+            finish()
+        }
     }
 }
