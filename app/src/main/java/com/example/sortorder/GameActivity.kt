@@ -98,9 +98,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
             AdMobIds.REWARDED_INTERSTITIAL
         )
         bannerAdHelper.load()
-        if (!adEntitlement.isAdFree()) {
-            rewardedInterstitialAdHelper.load()
-        }
+        rewardedInterstitialAdHelper.load()
         loadBestScore()
         initSounds()
         setupListeners()
@@ -712,8 +710,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
     }
 
     private fun updateGameOverActions() {
-        binding.overlayGameOver.btnWatchAd.visibility =
-            if (adEntitlement.isAdFree()) View.GONE else View.VISIBLE
+        binding.overlayGameOver.btnWatchAd.visibility = View.VISIBLE
         binding.overlayGameOver.tvExtraTimeCoinAction.text = getString(
             R.string.use_coins_for_time,
             CoinWallet.EXTRA_TIME_COST,
@@ -774,7 +771,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
             bannerAdHelper.resume()
             bannerAdHelper.refreshVisibility()
         }
-        if (::rewardedInterstitialAdHelper.isInitialized && !adEntitlement.isAdFree()) {
+        if (::rewardedInterstitialAdHelper.isInitialized) {
             rewardedInterstitialAdHelper.load()
         }
         if (::coinWallet.isInitialized && gameOverOverlay.visibility == View.VISIBLE) {
