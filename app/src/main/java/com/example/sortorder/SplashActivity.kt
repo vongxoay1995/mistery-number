@@ -34,8 +34,15 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         binding.loadingDot.startAnimation(pulseAnim)
 
         handler.postDelayed({
-            showAppOpenAdThenNavigate()
+            gatherConsentThenContinue()
         }, 2000)
+    }
+
+    private fun gatherConsentThenContinue() {
+        ConsentManager.gatherConsent(this) {
+            (application as? SortOrderApplication)?.initializeAdsIfAllowed()
+            showAppOpenAdThenNavigate()
+        }
     }
 
     private fun showAppOpenAdThenNavigate() {

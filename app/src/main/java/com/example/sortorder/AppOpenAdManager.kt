@@ -19,7 +19,7 @@ class AppOpenAdManager(
     private var loadTime = 0L
 
     fun loadAd() {
-        if (isLoadingAd || isAdAvailable()) return
+        if (isLoadingAd || isAdAvailable() || !ConsentManager.canRequestAds(context)) return
 
         isLoadingAd = true
         AppOpenAd.load(
@@ -41,7 +41,11 @@ class AppOpenAdManager(
     }
 
     fun showAdIfAvailable(activity: Activity, onComplete: () -> Unit) {
-        if (isShowingAd || activity.isFinishing || activity.isDestroyed) {
+        if (isShowingAd ||
+            activity.isFinishing ||
+            activity.isDestroyed ||
+            !ConsentManager.canRequestAds(activity)
+        ) {
             onComplete()
             return
         }

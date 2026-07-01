@@ -8,17 +8,38 @@ class SortOrderApplication : Application() {
 
     private lateinit var appOpenAdManager: AppOpenAdManager
     private var sessionNumber = 0
+    private var adsInitialized = false
 
     override fun onCreate() {
         super.onCreate()
-        MobileAds.initialize(this) { }
+        AnalyticsTracker.initialize(this)
         sessionNumber = incrementSessionNumber()
-        appOpenAdManager = AppOpenAdManager(this, AdMobIds.APP_OPEN)
+        AnalyticsTracker.logAppSessionStart(
+            sessionNumber = sessionNumber,
+            isAdFree = AdEntitlement(this).isAdFree()
+        )
+    }
+
+    fun initializeAdsIfAllowed() {
+        if (adsInitialized || AdEntitlement(this).isAdFree() || !ConsentManager.canRequestAds(this)) {
+            return
+        }
+
+        adsInitialized = true
+        MobileAds.initialize(this) { }
+        if (!::appOpenAdManager.isInitialized) {
+            appOpenAdManager = AppOpenAdManager(this, AdMobIds.APP_OPEN)
+        }
         appOpenAdManager.loadAd()
     }
 
     fun showAppOpenAdIfAvailable(activity: Activity, onComplete: () -> Unit) {
-        if (sessionNumber < FIRST_APP_OPEN_AD_SESSION || AdEntitlement(this).isAdFree()) {
+        initializeAdsIfAllowed()
+        if (sessionNumber < FIRST_APP_OPEN_AD_SESSION ||
+            AdEntitlement(this).isAdFree() ||
+            !ConsentManager.canRequestAds(this) ||
+            !::appOpenAdManager.isInitialized
+        ) {
             onComplete()
             return
         }

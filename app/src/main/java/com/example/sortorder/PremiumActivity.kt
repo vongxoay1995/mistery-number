@@ -36,8 +36,14 @@ class PremiumActivity : BaseActivity<ActivityPremiumBinding>() {
     }
 
     override fun setupListeners() {
-        binding.btnClose.setOnClickListener { finish() }
-        binding.btnContinue.setOnClickListener { launchRemoveAdsPurchase() }
+        binding.btnClose.setOnClickListener {
+            AnalyticsTracker.logButton("premium", "close")
+            finish()
+        }
+        binding.btnContinue.setOnClickListener {
+            AnalyticsTracker.logButton("premium", "continue")
+            launchRemoveAdsPurchase()
+        }
     }
 
     private fun setupBilling() {
@@ -123,6 +129,7 @@ class PremiumActivity : BaseActivity<ActivityPremiumBinding>() {
         val flowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(listOf(productParamsBuilder.build()))
             .build()
+        AnalyticsTracker.logPremiumPurchaseStart()
         val result = billingClient.launchBillingFlow(this, flowParams)
         if (result.responseCode != BillingClient.BillingResponseCode.OK) {
             showBillingStatus(getString(R.string.billing_error))
@@ -145,6 +152,10 @@ class PremiumActivity : BaseActivity<ActivityPremiumBinding>() {
         adEntitlement.unlockAdFree()
         updateUi()
         if (!wasAdFree) {
+            AnalyticsTracker.logPremiumPurchaseSuccess(
+                productId = PRODUCT_REMOVE_ADS,
+                wasAlreadyAdFree = wasAdFree
+            )
             Toast.makeText(this, R.string.ads_removed_success, Toast.LENGTH_SHORT).show()
         }
 

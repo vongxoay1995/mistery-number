@@ -17,7 +17,12 @@ class RewardedInterstitialAdHelper(
     private var isLoading = false
 
     fun load() {
-        if (isLoading || rewardedInterstitialAd != null || activity.isFinishing || activity.isDestroyed) {
+        if (isLoading ||
+            rewardedInterstitialAd != null ||
+            activity.isFinishing ||
+            activity.isDestroyed ||
+            !ConsentManager.canRequestAds(activity)
+        ) {
             return
         }
 
@@ -45,6 +50,11 @@ class RewardedInterstitialAdHelper(
         onAdUnavailable: () -> Unit,
         onAdClosed: (rewardEarned: Boolean) -> Unit
     ) {
+        if (!ConsentManager.canRequestAds(activity)) {
+            onAdUnavailable()
+            return
+        }
+
         val ad = rewardedInterstitialAd
         if (ad == null) {
             load()

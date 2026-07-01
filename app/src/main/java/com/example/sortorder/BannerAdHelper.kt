@@ -1,6 +1,7 @@
 package com.example.sortorder
 
 import android.app.Activity
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -26,20 +27,33 @@ class BannerAdHelper(
             container.visibility = View.GONE
             return
         }
+        if (!ConsentManager.canRequestAds(activity)) {
+            destroy()
+            container.visibility = View.GONE
+            return
+        }
 
         container.post {
-            if (activity.isFinishing || activity.isDestroyed || adView != null) return@post
+            if (activity.isFinishing ||
+                activity.isDestroyed ||
+                adView != null ||
+                !ConsentManager.canRequestAds(activity)
+            ) {
+                return@post
+            }
 
             val bannerView = AdView(activity).apply {
                 this.adUnitId = this@BannerAdHelper.adUnitId
                 setAdSize(AdSize.BANNER)
                 adListener = object : AdListener() {
                     override fun onAdLoaded() {
+                        Log.e("TAN", "onAdLoaded: ", )
                         container.visibility = View.VISIBLE
                     }
 
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         this@apply.destroy()
+                        Log.e("TAN", "onAdFailedToLoad: ${adError.message}", )
                         adView = null
                         container.removeAllViews()
                         container.visibility = View.GONE
@@ -69,6 +83,9 @@ class BannerAdHelper(
 
     fun refreshVisibility() {
         if (adEntitlement.isAdFree()) {
+            destroy()
+            container.visibility = View.GONE
+        } else if (!ConsentManager.canRequestAds(activity)) {
             destroy()
             container.visibility = View.GONE
         } else if (adView == null) {

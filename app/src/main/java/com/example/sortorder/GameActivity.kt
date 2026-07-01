@@ -107,7 +107,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         if (prefs.getBoolean(KEY_SAVED_GAME_VALID, false)) {
             restoreGameState()
         } else {
-            startLevel()
+            startLevel(isRestored = false)
         }
     }
 
@@ -158,43 +158,81 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
     }
 
     override fun setupListeners() {
-        binding.btnBack.setOnClickListener { handleBackPress() }
+        binding.btnBack.setOnClickListener {
+            AnalyticsTracker.logButton("game", "back")
+            handleBackPress()
+        }
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                AnalyticsTracker.logButton("game", "back")
                 handleBackPress()
             }
         })
-        binding.btnCheck.setOnClickListener { checkOrder() }
-        binding.btnHint.setOnClickListener { useHint() }
+        binding.btnCheck.setOnClickListener {
+            AnalyticsTracker.logButton("game", "check")
+            checkOrder()
+        }
+        binding.btnHint.setOnClickListener {
+            AnalyticsTracker.logButton("game", "hint")
+            useHint()
+        }
 
         binding.overlayGameOver.btnWatchAd.setOnClickListener {
+            AnalyticsTracker.logButton("game", "watch_ad")
+            AnalyticsTracker.logExtraTimeRequest(
+                method = EXTRA_TIME_METHOD_REWARDED_AD,
+                level = currentLevel,
+                coinBalance = coinWallet.getBalance()
+            )
             showRewardedAdForExtraTime()
         }
 
         binding.overlayGameOver.btnUseCoins.setOnClickListener {
+            AnalyticsTracker.logButton("game", "use_coins")
+            AnalyticsTracker.logExtraTimeRequest(
+                method = EXTRA_TIME_METHOD_COINS,
+                level = currentLevel,
+                coinBalance = coinWallet.getBalance()
+            )
             if (coinWallet.spend(CoinWallet.EXTRA_TIME_COST)) {
                 continueWithExtraTime(COIN_EXTRA_TIME_SECONDS)
+                AnalyticsTracker.logExtraTimeResult(
+                    method = EXTRA_TIME_METHOD_COINS,
+                    level = currentLevel,
+                    granted = true,
+                    seconds = COIN_EXTRA_TIME_SECONDS
+                )
             } else {
+                AnalyticsTracker.logExtraTimeResult(
+                    method = EXTRA_TIME_METHOD_COINS,
+                    level = currentLevel,
+                    granted = false,
+                    seconds = 0
+                )
                 showNotEnoughCoinsDialog()
             }
         }
 
         binding.overlayGameOver.btnGoHome.setOnClickListener { 
+            AnalyticsTracker.logButton("game", "home")
             clearGameState()
             finish() 
         }
 
         binding.overlayExit.btnCancelExit.setOnClickListener {
+            AnalyticsTracker.logButton("game", "cancel_exit")
             overlayExit.visibility = View.GONE
             isGamePausedManually = false
             if (!isTimerDelaying) resumeTimer()
         }
 
         binding.overlayExit.btnConfirmExit.setOnClickListener {
+            AnalyticsTracker.logButton("game", "confirm_exit")
             finish()
         }
 
         binding.overlayPause.btnResume.setOnClickListener {
+            AnalyticsTracker.logButton("game", "resume")
             overlayPause.visibility = View.GONE
             isGamePausedManually = false
             if (!isTimerDelaying) resumeTimer()
@@ -226,7 +264,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
 
     private fun usesAdjacentSwapRule(): Boolean = currentLevel >= 7
 
-    private fun startLevel() {
+    private fun startLevel(isRestored: Boolean = false) {
         timerDuration = getTimeForLevel()
         timeLeft = timerDuration
         selectedBoxIndex = null
@@ -240,6 +278,16 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         currentNumbers = targetNumbers.shuffled().toMutableList()
         while (currentNumbers == targetNumbers) {
             currentNumbers.shuffle()
+        }
+
+        AnalyticsTracker.logLevelStart(
+            level = currentLevel,
+            digits = targetNumbers.size,
+            usesAdjacentRule = usesAdjacentSwapRule(),
+            isRestored = isRestored
+        )
+        if (!isRestored) {
+            AnalyticsTracker.logGameLevelReached(currentLevel)
         }
 
         tvLevel.text = getString(R.string.level_format, currentLevel)
@@ -346,6 +394,9 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
     }
 
     private fun performAnimatedSwap(idx1: Int, idx2: Int) {
+        AnalyticsTracker.logGameSwap(
+            level = currentLevel
+        )
         animateNumberSwap(idx1, idx2) {
             val temp = currentNumbers[idx1]
             currentNumbers[idx1] = currentNumbers[idx2]
@@ -532,6 +583,12 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
             currentNumbers[it] == targetNumbers[it]
         }
         checksUsed++
+        AnalyticsTracker.logOrderCheck(
+            level = currentLevel,
+            correctCount = correctCount,
+            totalDigits = targetNumbers.size,
+            checksUsed = checksUsed
+        )
 
         if (correctCount == targetNumbers.size) {
             playCorrectSound()
@@ -577,6 +634,11 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
 
         hintsRemaining--
         hintsUsed++
+        AnalyticsTracker.logHintUse(
+            level = currentLevel,
+            hintsUsed = hintsUsed,
+            hintsRemaining = hintsRemaining
+        )
         combo = (combo - 1).coerceAtLeast(0)
         updateCombo()
         updateHintButton()
@@ -614,10 +676,21 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
 
     private fun onWin() {
         pauseTimer()
+        val completedLevel = currentLevel
         val stars = calculateStars()
         combo++
         val levelScore = timeLeft * 10 + currentLevel * 50 + combo * 25 + stars * 100
         score += levelScore
+        AnalyticsTracker.logLevelComplete(
+            level = completedLevel,
+            score = score,
+            levelScore = levelScore,
+            stars = stars,
+            timeLeft = timeLeft,
+            checksUsed = checksUsed,
+            hintsUsed = hintsUsed,
+            combo = combo
+        )
         tvScore.text = score.toString()
         updateCombo()
         saveBestScore()
@@ -630,7 +703,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
             Toast.makeText(this, R.string.all_levels_completed, Toast.LENGTH_LONG).show()
             finish()
         } else {
-            startLevel()
+            startLevel(isRestored = false)
         }
     }
 
@@ -701,6 +774,12 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         updateHintButton()
         clearSelection()
         saveBestScore()
+        AnalyticsTracker.logGameOver(
+            level = currentLevel,
+            score = score,
+            checksUsed = checksUsed,
+            hintsUsed = hintsUsed
+        )
         binding.overlayGameOver.tvGameOverMsg.text =
             getString(R.string.game_over_message, currentLevel)
         gameOverOverlay.alpha = 0f
@@ -737,7 +816,19 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
                 watchAdButton.alpha = 1f
                 if (rewardEarned && gameOverOverlay.visibility == View.VISIBLE) {
                     continueWithExtraTime(REWARDED_AD_SECONDS)
+                    AnalyticsTracker.logExtraTimeResult(
+                        method = EXTRA_TIME_METHOD_REWARDED_AD,
+                        level = currentLevel,
+                        granted = true,
+                        seconds = REWARDED_AD_SECONDS
+                    )
                 } else if (gameOverOverlay.visibility == View.VISIBLE) {
+                    AnalyticsTracker.logExtraTimeResult(
+                        method = EXTRA_TIME_METHOD_REWARDED_AD,
+                        level = currentLevel,
+                        granted = false,
+                        seconds = 0
+                    )
                     updateGameOverActions()
                 }
             }
@@ -830,7 +921,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         timeLeft = prefs.getInt(KEY_SAVED_TIME, -1)
         
         if (timeLeft == -1) {
-            startLevel()
+            startLevel(isRestored = false)
             return
         }
 
@@ -844,6 +935,13 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         val revealed = prefs.getString(KEY_SAVED_REVEALED, "")?.split(",")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
         revealedHintIndices.clear()
         revealedHintIndices.addAll(revealed)
+
+        AnalyticsTracker.logLevelStart(
+            level = currentLevel,
+            digits = targetNumbers.size,
+            usesAdjacentRule = usesAdjacentSwapRule(),
+            isRestored = true
+        )
         
         selectedBoxIndex = null
         isLevelFinished = false
@@ -923,5 +1021,7 @@ class GameActivity : BaseActivity<ActivityGameBinding>() {
         private const val SWAP_LANDING_DURATION_MS = 220L
         private const val REWARDED_AD_SECONDS = 10
         private const val COIN_EXTRA_TIME_SECONDS = 20
+        private const val EXTRA_TIME_METHOD_REWARDED_AD = "rewarded_ad"
+        private const val EXTRA_TIME_METHOD_COINS = "coins"
     }
 }

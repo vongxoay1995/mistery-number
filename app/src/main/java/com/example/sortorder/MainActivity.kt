@@ -164,15 +164,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
         // Tap play button to start game
         binding.btnPlay.setOnClickListener {
-            startActivity(Intent(this, GameActivity::class.java))
+            openGame()
         }
         
         binding.tvTapToPlay.setOnClickListener {
-            startActivity(Intent(this, GameActivity::class.java))
+            openGame()
         }
 
         // Settings button
         binding.btnSettings.setOnClickListener {
+            AnalyticsTracker.logButton("main", "settings")
+            AnalyticsTracker.logNavigation("settings_open")
             startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
@@ -211,5 +213,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun updateCoins(tvCoins: TextView) {
         tvCoins.text = CoinWallet(this).getBalance().toString()
+    }
+
+    private fun openGame() {
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        AnalyticsTracker.logButton("main", "play")
+        AnalyticsTracker.logPlayTap(
+            hasSavedGame = prefs.getBoolean("saved_game_valid", false)
+        )
+        startActivity(Intent(this, GameActivity::class.java))
     }
 }
